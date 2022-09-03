@@ -85,27 +85,13 @@ namespace SGPAPP
                 try
                 {
                     con.Open();
-                string ct2 = "select cloguser from tbchangelog where cloguser = '" + txtUser.Text + "'"; cmd = new SqlCommand(ct2);
-                cmd.Connection = con;
-                SqlDataReader rdr = cmd.ExecuteReader();
+                    cmd.CommandType = System.Data.CommandType.StoredProcedure;
+                    cmd.CommandText = "spChangeLog";
 
-                if (rdr.Read())
-                {
+                    cmd.Parameters.Add("@user", SqlDbType.VarChar).Value = txtUser.Text;
 
-                }
-                else
-                {
-                    con.Close();
-                    frmChangelog cl = new frmChangelog();
-                    cl.ShowDialog();
-                    SqlCommand AddUser = new SqlCommand("Insert into tbChangelog values (@User)", con);
-                    con.Open();
-                    
-                        AddUser.Parameters.Clear();
-                        AddUser.Parameters.AddWithValue("@User", txtUser.Text);
-                        AddUser.ExecuteNonQuery();
-                   
-                }
+                    cmd.ExecuteReader();
+                    con.Close();  
                 }
                 catch (Exception ex)
                 {
@@ -124,20 +110,33 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
-                string sql = "select rolname, usr_rolid from tbuserroles inner join tbroles on usr_rolid = rolid where usr_uid = " + UserCache.UserID + "";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader rdr;
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-                rdr = cmd.ExecuteReader();
-                while (rdr.Read())
+
+                try
                 {
-                    UserRoles item = new UserRoles();                   
-                    item.RoleName = rdr.GetString(0);
-                    item.RolID = rdr.GetInt32(1);
-                    UserCache.RoleList.Add(item);
+                    con.Open();
+                    cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spGetUserRoles";
+                    SqlDataReader rdr;
+                    cmd.Parameters.Add("@userid", SqlDbType.Int).Value = UserCache.UserID;
+
+                    rdr = cmd.ExecuteReader();
+                    
+                    while  (rdr.Read())
+                    {
+                        UserRoles item = new UserRoles();
+                        item.RoleName = rdr.GetString(0);
+                        item.RolID = rdr.GetInt32(1);
+                        UserCache.RoleList.Add(item);
+                    }
+                    con.Close();
                 }
-                con.Close();
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    con.Close();
+                }
+               
             }
             
         }
@@ -159,15 +158,18 @@ namespace SGPAPP
                 }
                 using (var con = new SqlConnection(conect))
                 {
-                    string sql = "SELECT (uNombre) as [Nombre], (uCedula) as [Ced], (uUser) as [User], (uPassword) as [Pass], (uLevel) as [Level], (uStatus) as [Status], (uSalt) as [Salt],(uID) as [ID] FROM tbUsuarios WHERE uUser = '" + txtUser.Text + "' ";
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    SqlDataReader reader;
-                    cmd.CommandType = CommandType.Text;
 
                     try
                     {
                         con.Open();
+                        cmd = new SqlCommand("", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "spGetUserLogin";
+                        SqlDataReader reader;
+                        cmd.Parameters.Add("@user", SqlDbType.VarChar).Value = txtUser.Text;
+
                         reader = cmd.ExecuteReader();
+
                         if (reader.Read())
                         {
                             UserCache.Usuario = reader[0].ToString();
@@ -228,15 +230,17 @@ namespace SGPAPP
 
                         }
                         Logs log = new Logs();
-                        log.Accion = "Inicio de Sesion Usuario: "+UserCache.Usuario+"";
+                        log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + "";
                         log.Form = "Login";
                         log.SaveLog();
+                        con.Close();
                     }
                     catch (Exception ex)
                     {
                         MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                         con.Close();
                     }
+
                 }
             }
             else
@@ -287,80 +291,84 @@ namespace SGPAPP
                 }
                 using (var con = new SqlConnection(conect))
                 {
-                    string sql = "SELECT (uNombre) as [Nombre], (uCedula) as [Ced], (uUser) as [User], (uPassword) as [Pass], (uLevel) as [Level], (uStatus) as [Status], (uSalt) as [Salt],(uID) as [ID] FROM tbUsuarios WHERE uUser = '" + txtUser.Text + "' ";
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    SqlDataReader reader;
-                    cmd.CommandType = CommandType.Text;
-
+                    
                     try
-                    {
-                        con.Open();
-                        reader = cmd.ExecuteReader();
-                        if (reader.Read())
                         {
-                            UserCache.Usuario = reader[0].ToString();
-                            UserCache.Cedula = reader[1].ToString();
-                            UserCache.LoginName = reader[2].ToString();
-                            UserCache.Password = (byte[])reader[3];
-                            UserCache.Nivel = reader[4].ToString();
-                            UserCache.Status = reader[5].ToString();
-                            UserCache.Salt = (byte[])reader[6];
-                            UserCache.UserID = (int)reader[7];
+                            con.Open();
+                            cmd = new SqlCommand("", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.CommandText = "spGetUserLogin";
+                            SqlDataReader reader;
+                            cmd.Parameters.Add("@user", SqlDbType.VarChar).Value = txtUser.Text;
+
+                            reader = cmd.ExecuteReader();
+
+                            if (reader.Read())
+                            {
+                                UserCache.Usuario = reader[0].ToString();
+                                UserCache.Cedula = reader[1].ToString();
+                                UserCache.LoginName = reader[2].ToString();
+                                UserCache.Password = (byte[])reader[3];
+                                UserCache.Nivel = reader[4].ToString();
+                                UserCache.Status = reader[5].ToString();
+                                UserCache.Salt = (byte[])reader[6];
+                                UserCache.UserID = (int)reader[7];
                                 GetRoles();
                                 int i;
-                            pgb1.Visible = true;
-                            pgb1.Maximum = 2000;
-                            pgb1.Minimum = 0;
-                            pgb1.Value = 4;
-                            pgb1.Step = 1;
+                                pgb1.Visible = true;
+                                pgb1.Maximum = 2000;
+                                pgb1.Minimum = 0;
+                                pgb1.Value = 4;
+                                pgb1.Step = 1;
 
-                            for (i = 0; i <= 2000; i++)
-                            {
-                                pgb1.PerformStep();
-                            }
-                            byte[] hashedPassword = clsEncrypt.HashPasswordWithSalt(Encoding.UTF8.GetBytes(txtPass.Text), UserCache.Salt);
-                            if (hashedPassword.SequenceEqual(UserCache.Password))
-                            {
-                                isvalid = true;
+                                for (i = 0; i <= 2000; i++)
+                                {
+                                    pgb1.PerformStep();
+                                }
+                                byte[] hashedPassword = clsEncrypt.HashPasswordWithSalt(Encoding.UTF8.GetBytes(txtPass.Text), UserCache.Salt);
+                                if (hashedPassword.SequenceEqual(UserCache.Password))
+                                {
+                                    isvalid = true;
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Contraseña Incorrecta", "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    txtPass.Focus();
+                                    return;
+                                }
+
+                                if (UserCache.Status == "Activo")
+                                {
+                                    this.Hide();
+
+                                    frmMain frm = new frmMain();
+
+                                    frm.Show();
+                                    //ChangeLog();
+                                }
+                                else
+                                {
+                                    MessageBox.Show("Este usuario se encuentra deshabilitado. Contacte al administrador", "Usuario Deshabilitado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                                }
                             }
                             else
                             {
-                                MessageBox.Show("Contraseña Incorrecta", "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                txtPass.Focus();
-                                return;
+                                MessageBox.Show("Usuario Incorrecto", "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                txtUser.Focus();
                             }
 
-                            if (UserCache.Status == "Activo")
+                            if (con.State == ConnectionState.Open)
                             {
-                                this.Hide();
+                                con.Dispose();
 
-                                frmMain frm = new frmMain();
-
-                                frm.Show();
-                                //ChangeLog();
                             }
-                            else
-                            {
-                                MessageBox.Show("Este usuario se encuentra deshabilitado. Contacte al administrador", "Usuario Deshabilitado", MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                            }
-                        }
-                        else
-                        {
-                            MessageBox.Show("Usuario Incorrecto", "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            txtUser.Focus();
-                        }
-
-                        if (con.State == ConnectionState.Open)
-                        {
-                            con.Dispose();
-
-                        }
                             Logs log = new Logs();
-                            log.Accion = "Inicio de Sesion Usuario: "+UserCache.Usuario+"";
+                            log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + "";
                             log.Form = "Login";
                             log.SaveLog();
+                            con.Close();
                         }
-                    catch (Exception ex)
+                        catch (Exception ex)
                     {
                             MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             con.Close();

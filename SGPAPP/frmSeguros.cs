@@ -21,6 +21,7 @@ namespace SGPAPP
         static string conect = ConfigurationManager.ConnectionStrings["Connection"].ToString();
         SqlCommand cmd = null;
         SqlDataReader rdr = null;
+        String MSG;
         private void btnSave_Click(object sender, EventArgs e)
         {
            
@@ -58,44 +59,33 @@ namespace SGPAPP
                 {
                     using (var con = new SqlConnection(conect))
                     {
+                  
                         con.Open();
-                        string ct = "select segseguro from tbseguros where segseguro = '" + txtNom.Text + "'";
-
-                        cmd = new SqlCommand(ct);
-                        cmd.Connection = con;
-                        rdr = cmd.ExecuteReader();
-
-                        if (rdr.Read())
+                        cmd = new SqlCommand("", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "spInsertaSeguro";
+                        cmd.Parameters.Add(new SqlParameter("@Seguro", SqlDbType.VarChar)).Value = txtNom.Text;
+                        cmd.Parameters.Add(new SqlParameter("@Segtel", SqlDbType.VarChar)).Value = txttel.Text;
+                        cmd.Parameters.Add(new SqlParameter("@Msg", SqlDbType.VarChar, 100)).Direction = ParameterDirection.Output;
+                        try
                         {
-                            MessageBox.Show("Este seguro ya esta registrado", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            con.Close();
-                            return;
-
+                            cmd.ExecuteNonQuery();
+                            MSG = cmd.Parameters["@Msg"].Value.ToString();
                         }
-
-                        else if ((rdr != null))
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error:" + ex.ToString());
+                        }
+                        finally
                         {
                             con.Close();
-                            string Sql = "insert into tbSeguros(segseguro, segTel) values ('" + txtNom.Text + "', '" + txttel.Text + "')";
-                            // con = new SqlConnection(cs.ConnectionString);
-                            cmd = new SqlCommand(Sql, con);
-                            cmd.CommandType = CommandType.Text;
-                            con.Open();
-                            try
-                            {
-                                int i = cmd.ExecuteNonQuery();
-
-
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("Error:" + ex.ToString());
-                            }
-                            finally
-                            {
-                                con.Close();
-                            }
-
+                        }   
+                        if (MSG == "Este seguro ya esta registrado")
+                        {
+                            MessageBox.Show(MSG, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        else if (MSG == "Seguro Guardado Correctamente")
+                        {
                             MessageBox.Show("Seguro Guardado Correctamente", "Guardado Satisfactorio", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             this.DialogResult = DialogResult.OK;
                             DateTime fechas1 = DateTime.Now;
@@ -108,11 +98,11 @@ namespace SGPAPP
                             log.Accion = "Seguro: " + txtNom.Text + " Guardado";
                             log.Form = "Registro de Seguros";
                             log.SaveLog();
-
                         }
+
                     }
-                }
-            }
+                    }
+                }            
             catch (Exception ex)
             {
                 MessageBox.Show("Error:" + ex.ToString());

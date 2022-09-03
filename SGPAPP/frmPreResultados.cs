@@ -178,6 +178,11 @@ namespace SGPAPP
         public void CheckPDF()
         {
 
+
+            int rowIndex = radGridView1.CurrentCell.RowIndex;
+            IDre = this.radGridView1.Rows[rowIndex].Cells["ID de Resultado"].Value.ToString();
+            name = (string)this.radGridView1.Rows[rowIndex].Cells["Paciente"].Value;
+
             using (var con = new SqlConnection(conect))
             {
                 string sql = "SELECT redocPDF as [PDF] from tbpreresultados where reid = " + IDre + " and redocpdf is not null";
@@ -445,44 +450,93 @@ namespace SGPAPP
         }
         private void radButton1_Click(object sender, EventArgs e)
         {
-            using (var con = new SqlConnection(conect))
+            CheckPDF();
+            if (checkPDF == true)
             {
-                try
-                {
-                    string sql = "select RTRIM(pemail) as [Email], RTRIM(pfechareg) as [Fecha Registro], RTRIM(pemail2) as [Email2] from tbpacientes where pID = '" + PacID + "'";
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    SqlDataReader reader;
-                    cmd.CommandType = CommandType.Text;
-                    con.Open();
 
-                    reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        Mail = reader[0].ToString();
-                        FechaReg = reader[1].ToString();
-                        Mail2 = reader[2].ToString();
-                        if (Mail2.Length > 0)
+                int rowIndex = radGridView1.CurrentCell.RowIndex;
+                DialogResult resulta = MessageBox.Show("Esta seguro que desea aprobar los resultados de: " + radGridView1.Rows[rowIndex].Cells[2].Value.ToString() + "?", "Aprobar Resultados", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
+                Tipo = radGridView1.Rows[rowIndex].Cells[8].Value.ToString();
+                PacID = int.Parse(radGridView1.Rows[rowIndex].Cells[1].Value.ToString());
+                
+                if (resulta == DialogResult.Yes)
+                {
+                    foreach (GridViewRowInfo rowInfo in radGridView1.Rows) if ((int)radGridView1.Rows[rowInfo.Index].Cells[1].Value == PacID && (string)radGridView1.Rows[rowInfo.Index].Cells[8].Value == Tipo)
                         {
-                            Mail = Mail + ", " + Mail2;
+                            using (var con = new SqlConnection(conect))
+                            {
+                                try
+                                {
+                                    //string Sql = "insert into tbResultados(rePacid, rePaciente, reDir, reFechan, reEdad, reCed, reTipop, rePrueba, reResultado, reResultado1, reCT, reResultado2, reCT2, reFecha, refecham, reHora, reHoram, reDocPDF) values ('" + pacID + "', '" + lblname.Text + "', '" + dir + "', '" + lblFecha.Text + "', '" + lblage.Text + "', '" + lblCed.Text + "','" + Tipop + "', '" + Prueba + "', '" + Resultado + "', '" + null + "', '" + null + "', '" + null + "', '" + null + "','" + cambiada1 + "' , '" + FechaMuestra + "',  '" + HoraRegistro.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "', '" + HoraMuestra + "', '" + null + "')";
+                                    SqlCommand AddResultados = new SqlCommand("Insert into tbResultados values (@rePacid, @rePaciente, @reDir, @reFechan, @reEdad, @reCed, @reTipop, @rePrueba, @reResultado, @reCT, @reFecha, @refecham, @reHora, @reHoram, (select redocpdf from tbpreresultados where reid = " + IDre + "), @reResultado1, @reResultado2, @reCT2, @reEmpresa, @rePruebaID, @reFacturacionID)", con);
+                                    con.Open();
+
+                                    PruebaID = (int)radGridView1.Rows[rowInfo.Index].Cells[19].Value;
+                                    AddResultados.Parameters.Clear();
+                                    AddResultados.Parameters.AddWithValue("@rePacid", PacID);
+                                    AddResultados.Parameters.AddWithValue("@rePaciente", radGridView1.Rows[rowInfo.Index].Cells[2].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reDir", radGridView1.Rows[rowInfo.Index].Cells[6].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reEdad", radGridView1.Rows[rowInfo.Index].Cells[5].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reFechan", radGridView1.Rows[rowInfo.Index].Cells[4].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reCed", radGridView1.Rows[rowInfo.Index].Cells[3].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reTipop", radGridView1.Rows[rowInfo.Index].Cells[8].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@rePrueba", radGridView1.Rows[rowInfo.Index].Cells[9].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reResultado", radGridView1.Rows[rowInfo.Index].Cells[10].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reResultado1", radGridView1.Rows[rowInfo.Index].Cells[10].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reCT", radGridView1.Rows[rowInfo.Index].Cells[11].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reResultado2", radGridView1.Rows[rowInfo.Index].Cells[12].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reCT2", radGridView1.Rows[rowInfo.Index].Cells[13].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reFecha", radGridView1.Rows[rowInfo.Index].Cells[15].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reFecham", radGridView1.Rows[rowInfo.Index].Cells[14].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reHoram", radGridView1.Rows[rowInfo.Index].Cells[17].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reHora", radGridView1.Rows[rowInfo.Index].Cells[16].Value.ToString());
+                                    //AddResultados.Parameters.AddWithValue("@PDFDOC", (byte[])radGridView1.Rows[rowInfo.Index].Cells[19].Value);
+                                    AddResultados.Parameters.AddWithValue("@reEmpresa", SqlDbType.VarChar).Value = DBNull.Value;
+                                    AddResultados.Parameters.AddWithValue("@rePruebaID", radGridView1.Rows[rowInfo.Index].Cells[19].Value.ToString());
+                                    AddResultados.Parameters.AddWithValue("@reFacturacionID", radGridView1.Rows[rowInfo.Index].Cells[20].Value.ToString());
+                                    AddResultados.ExecuteNonQuery();
+                                    DelPrueba();
+                                    DelPreResult();
+                                   
+                                    clsRandomNo rd = new clsRandomNo();
+                                    rd.GetNo();
+
+                                    if (radGridView1.Rows[rowInfo.Index].Cells[9].Value.ToString() != "HIV" && enviado == false)
+                                    {
+                                        getPaciente();
+                                        SendMail();
+                                       
+                                    }
+                                }
+                                catch (Exception ex)
+                                {
+                                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    con.Close();
+                                }
+
+                                finally
+                                {
+                                    con.Close();
+                                }
+                                Logs log = new Logs();
+                                log.Accion = "Resultados Aprobados a Prueba ID: " + PruebaID + " del Paciente: " + name + "";
+                                log.Form = "Aprobar Resultados";
+                                log.SaveLog();
+
+                            }
                         }
-                    }
-                    else
-                    {
-                        MessageBox.Show("No se ha encontrado registro de paciente!");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-                finally
-                {
-                    con.Close();
+
+                    MessageBox.Show("Resultados Aprobados Correctamente!", "Resultados", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    enviado = false;
+                    GetData();
                 }
             }
+            else
+            {
+                MessageBox.Show("Este Resultado aun no ha sido generado.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
-        public void sendmail(string mailto, string doc)
+        public void sendmailold(string mailto, string doc)
         {
             try
             {
@@ -569,6 +623,40 @@ namespace SGPAPP
                     con.Close();
                 }
             }
+        }
+
+        public void SendMail()
+        {
+            using (var con = new SqlConnection(conect))
+            {
+                if (Mail2.Length > 0)
+                {
+                    Mail = Mail + ", " + Mail2;
+                }
+                String Query2 = "insert into tbControlMail (cmreid, cmpruebaempresaid, cmmail, cmfecha, cmhora, cmenviado, cmerror) values ((select reid from tbResultados where rePruebaID = " + PruebaID + " and repacid = " + PacID + "), '0', '" + Mail + "',  convert(date, getdate()), convert(time, getdate()), 0, NULL) ";
+                cmd = new SqlCommand(Query2, con);
+                cmd.CommandType = CommandType.Text;
+                con.Open();
+                try
+                {
+                    int i = cmd.ExecuteNonQuery();
+                    enviado = true;
+
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show("Error:" + ex.ToString());
+                }
+                finally
+                {
+                    con.Close();
+                }
+            }
+        }
+
+        private void frmPreResultados_FormClosing(object sender, FormClosingEventArgs e)
+        {
+            this.DialogResult = DialogResult.OK;
         }
     }
 }

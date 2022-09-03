@@ -229,5 +229,10 @@ namespace SGPAPP
                 radGridView1.Rows.RemoveAt(this.radGridView1.SelectedRows[0].Index);
             }
         }
+
+        private void radScrollablePanel1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

@@ -189,19 +189,32 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
-                string sql = "select emnom, erol_uid, erol_emid from tbrolesempresa inner join tbEmpresas on erol_emid = emid  where erol_uid = " + UserCache.UserID + "";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader rdr;
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-                rdr = cmd.ExecuteReader();
-                while (rdr.Read())
+                try
                 {
-                    RolesEmpresa item = new RolesEmpresa();
-                    item.EmpresaRol = rdr.GetString(0);
-                    UserCache.EmpresaRoles.Add(item);
+                    SqlCommand cmd = null;
+                    con.Open();
+                    cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spGetRolesEmpresas";
+                    SqlDataReader rdr;
+                    cmd.Parameters.Add("@userid", SqlDbType.Int).Value = UserCache.UserID;
+
+                    rdr = cmd.ExecuteReader();
+
+                    while (rdr.Read())
+                    {
+                        RolesEmpresa item = new RolesEmpresa();
+                        item.EmpresaRol = rdr.GetString(0);
+                        UserCache.EmpresaRoles.Add(item);
+                    }
+                    con.Close();
                 }
-                con.Close();
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    con.Close();
+                }
+          
             }
         }
         public void ValidaStatus()
@@ -217,24 +230,27 @@ namespace SGPAPP
                     {
                         try
                         {
-                        string sql = "SELECT (uStatus) as [Status] FROM tbUsuarios WHERE uUser = '" + UserCache.Usuario + "' AND uPassword = '" + UserCache.Password + "'";
-                        SqlCommand cmd = new SqlCommand(sql, con);
-                        SqlDataReader reader;
-                        cmd.CommandType = CommandType.Text;
-                        con.Open();
+                            SqlCommand cmd = null;
+                            con.Open();
+                            cmd = new SqlCommand("", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.CommandText = "spValidaStatus";
+                            SqlDataReader rdr;
+                            cmd.Parameters.Add("@userid", SqlDbType.Int).Value = UserCache.UserID;
 
-                       
-                            reader = cmd.ExecuteReader(CommandBehavior.CloseConnection);
-                            if (reader.Read())
+                            rdr = cmd.ExecuteReader();
+
+                            if (rdr.Read())
                             {
-                                UserCache.Status = reader[0].ToString();
+                                UserCache.Status = rdr[0].ToString();
                             }
+                            con.Close();
                         }
                         catch (Exception ex)
                         {
                             MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                             con.Close();
-                        }
+                        }                       
                     }
                     if (UserCache.Status == "Inactivo")
                     {
@@ -264,36 +280,12 @@ namespace SGPAPP
                     fi.Delete();
             }
 
-
-
-            string day2 = Fecha.Day.ToString();
+                string day2 = Fecha.Day.ToString();
                 string mes2 = Fecha.Month.ToString();
                 string year2 = Fecha.Year.ToString();
 
                 string cambiada1 = year2 + "-" + mes2 + "-" + day2;
-
-            using (var con = new SqlConnection(conect))
-            {
-                try
-                { 
-                String Sql = "delete from tblogs where logfecha < '" + cambiada1 + "'";
-                SqlCommand cmd = new SqlCommand(Sql, con);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-
-                
-                    int i = cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-                finally
-                {
-                    con.Close();
-                }
-            }
+            
         }
 
         private void frmMain_FormClosing(object sender, FormClosingEventArgs e)

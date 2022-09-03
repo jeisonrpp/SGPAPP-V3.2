@@ -153,6 +153,7 @@ namespace SGPAPP
             this.RootElement.ApplyShapeToControl = true;
             this.Text = "Pruebas pendientes de aprobacion";
             this.ThemeName = "Office2013Light";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.frmPreResultados_FormClosing);
             this.Load += new System.EventHandler(this.frmPreResultados_Load);
             ((System.ComponentModel.ISupportInitialize)(this.radGridView1.MasterTemplate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.radGridView1)).EndInit();

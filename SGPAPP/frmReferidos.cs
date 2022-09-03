@@ -21,6 +21,7 @@ namespace SGPAPP
         static string conect = ConfigurationManager.ConnectionStrings["Connection"].ToString();
         SqlCommand cmd = null;
         SqlDataReader rdr = null;
+        String MSG;
         private void btnSave_Click(object sender, EventArgs e)
         {
             
@@ -39,43 +40,31 @@ namespace SGPAPP
                     using (var con = new SqlConnection(conect))
                     {
                         con.Open();
-                        string ct = "select refnom from tbreferidos where refnom = '" + txtNom.Text + "'";
-
-                        cmd = new SqlCommand(ct);
-                        cmd.Connection = con;
-                        rdr = cmd.ExecuteReader();
-
-                        if (rdr.Read())
+                        cmd = new SqlCommand("", con);
+                        cmd.CommandType = CommandType.StoredProcedure;
+                        cmd.CommandText = "spInsertaReferidos";
+                        cmd.Parameters.Add(new SqlParameter("@ref", SqlDbType.VarChar)).Value = txtNom.Text;
+                        cmd.Parameters.Add(new SqlParameter("@desc", SqlDbType.VarChar)).Value = txtDesc.Text;
+                        cmd.Parameters.Add(new SqlParameter("@Msg", SqlDbType.VarChar, 100)).Direction = ParameterDirection.Output;
+                        try
                         {
-                            MessageBox.Show("Este Referido ya esta registrado", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                            con.Close();
-                            return;
-
+                            cmd.ExecuteNonQuery();
+                            MSG = cmd.Parameters["@Msg"].Value.ToString();
                         }
-
-                        else if ((rdr != null))
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error:" + ex.ToString());
+                        }
+                        finally
                         {
                             con.Close();
-                            string Sql = "insert into tbReferidos(refNom, refDesc) values ('" + txtNom.Text + "', '" + txtDesc.Text + "')";
-                            // con = new SqlConnection(cs.ConnectionString);
-                            cmd = new SqlCommand(Sql, con);
-                            cmd.CommandType = CommandType.Text;
-                            con.Open();
-                            try
-                            {
-                                int i = cmd.ExecuteNonQuery();
-
-
-                            }
-                            catch (Exception ex)
-                            {
-                                MessageBox.Show("Error:" + ex.ToString());
-                            }
-                            finally
-                            {
-                                con.Close();
-                            }
-
+                        }
+                        if (MSG == "Este referido ya esta registrado")
+                        {
+                            MessageBox.Show(MSG, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
+                        else if (MSG == "Referido Guardado Correctamente")
+                        {                      
                             MessageBox.Show("Referido Guardado Correctamente", "Guardado Satisfactorio", MessageBoxButtons.OK, MessageBoxIcon.Information);
                             this.DialogResult = DialogResult.OK;
                             Logs log = new Logs();

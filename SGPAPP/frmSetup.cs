@@ -103,8 +103,8 @@ namespace SGPAPP
         {
             if (UserCache.RoleList.Any(item => item.RoleName == "Pruebas") || UserCache.Nivel == "Admin")
             {
-                frmTiposPruebas prt = new frmTiposPruebas();
-            prt.ShowDialog();
+                frmAddPruebas prt = new frmAddPruebas();
+                prt.ShowDialog();
             }
             else { MessageBox.Show("No cuenta con privilegios para realizar esta accion.", "Acceso Denegado", MessageBoxButtons.OK, MessageBoxIcon.Error); }
 

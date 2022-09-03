@@ -498,12 +498,6 @@
     <Compile Include="frmResultse.Designer.cs">
       <DependentUpon>frmResultse.cs</DependentUpon>
     </Compile>
-    <Compile Include="frmResultsNew.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="frmResultsNew.Designer.cs">
-      <DependentUpon>frmResultsNew.cs</DependentUpon>
-    </Compile>
     <Compile Include="frmResultsO.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -747,9 +741,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="frmResultse.resx">
       <DependentUpon>frmResultse.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="frmResultsNew.resx">
-      <DependentUpon>frmResultsNew.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="frmResultsO.resx">
       <DependentUpon>frmResultsO.cs</DependentUpon>

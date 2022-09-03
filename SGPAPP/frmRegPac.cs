@@ -187,18 +187,18 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
+
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select (segSeguro) as Seguros from tbSeguros order by segseguro", con);
-
-                da.Fill(ds, "Seguros");
-                cbbSeguro.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetSeguros", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbSeguro.DataSource = table;
                 cbbSeguro.ValueMember = "Seguros";
                 cbbSeguro.Text = "Seleccione el Seguro";
-
-
                 con.Close();
+             
+   
             }
         }
         public void cargacbbRef()
@@ -206,18 +206,15 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select (refNom) as Referidos from tbReferidos order by refNom", con);
-
-                da.Fill(ds, "Referidos");
-                cbbRef.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetReferidos", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbRef.DataSource = table;
                 cbbRef.ValueMember = "Referidos";
                 cbbRef.Text = "";
-                
-
-
                 con.Close();
+              
             }
         }
         public void conviertefecha()
@@ -280,57 +277,7 @@ namespace SGPAPP
             }
         }
 
-        public void cargapruebas()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                string sql = "Select pid from tbpacientes where pnom = '"+txtNom.Text+"' and pced = '" + txtCed.Text + "'  ";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-
-                reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    PacienteId = reader[0].ToString();
-
-                    //frmPruebas hi = new frmPruebas();
-                    //hi.pacID = int.Parse(PacienteId);
-                    //hi.Cedula = txtCed.Text;
-                    //hi.Show();
-                }
-                con.Close();
-               
-            }
-        }
-
-        public void asignapruebas()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                SqlCommand AddPruebas = new SqlCommand("Insert into tbPruebasPendientes values (@Pacid, @Paciente, @Cedula, @Tipo, @Prueba, @Fecha, @Tiempo, @Metodo, @Hora)", con);
-                con.Open();
-
-                        AddPruebas.Parameters.Clear();
-                        AddPruebas.Parameters.AddWithValue("@Pacid", Convert.ToString(PacienteId));
-                        AddPruebas.Parameters.AddWithValue("@Paciente", txtNom.Text);
-                        AddPruebas.Parameters.AddWithValue("@Cedula", txtCed.Text);
-                        AddPruebas.Parameters.AddWithValue("@Tipo", "PCR");
-                        AddPruebas.Parameters.AddWithValue("@Prueba", "Sars Cov-2");
-                        AddPruebas.Parameters.AddWithValue("@Fecha", cambiada2);
-                        AddPruebas.Parameters.AddWithValue("@Tiempo", "24-48 Horas");
-                        AddPruebas.Parameters.AddWithValue("@Metodo", "Consulta Web");
-                         AddPruebas.Parameters.AddWithValue("@Hora", Fecha.ToString("hh:mm tt", CultureInfo.InvariantCulture));
-                AddPruebas.ExecuteNonQuery();
-                con.Close();
-
-                    }
-                  
-                }
-
-       
-
+         
         public void limpiar()
         {
             txtNom.Text = "";
@@ -353,38 +300,36 @@ namespace SGPAPP
         public void GuardaPacientes()
         {
             string Email = txtEmail.Text;
-            if(txtCed.Text == "No Aplica")
-            {
-//                GeneraCed();
-               // txtCed.Text = Cedula;
-            }
-            //if (txtEmailC.Text.Length > 0)
-            //{
-            //    String email2 = txtEmailC.Text;
-            //    if (Regex.IsMatch(email2, expresion))
-            //    {
-            //        if (Regex.Replace(email2, expresion, String.Empty).Length == 0)
-            //        {
-            //            Email = txtEmail.Text + ", " + txtEmailC.Text;
-            //        }
-            //    }
-            //}
+         
             using (var con = new SqlConnection(conect))
             {
-                string Sql = "insert into tbPacientes(pNom, pCed, pSex, pfecha, pDir, pCel, pEmail, pemail2, pSeguro, pFechareg, pReferidor) values ('" + txtNom.Text + "', '" + txtCed.Text + "', '" + Sex + "', '" + cambiada1 + "','" + txtDir.Text + "', '" + txtCel.Text + "', '" + Email + "', '" + txtEmailC.Text + "', '" + cbbSeguro.Text + "',  '" + cambiada2 + "',  '" + cbbRef.Text + "')";
-
-                cmd = new SqlCommand(Sql, con);
-                cmd.CommandType = CommandType.Text;
                 con.Open();
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spInsertPacientes";
+                cmd.Parameters.Add(new SqlParameter("@pNom", SqlDbType.VarChar)).Value = txtNom.Text;
+                cmd.Parameters.Add(new SqlParameter("@pCed", SqlDbType.VarChar)).Value = txtCed.Text;
+                cmd.Parameters.Add(new SqlParameter("@pSex", SqlDbType.VarChar)).Value = Sex;
+                cmd.Parameters.Add(new SqlParameter("@pFecha", SqlDbType.VarChar)).Value = cambiada1;
+                cmd.Parameters.Add(new SqlParameter("@pDir", SqlDbType.VarChar)).Value = txtDir.Text;
+                cmd.Parameters.Add(new SqlParameter("@pCel", SqlDbType.VarChar)).Value = txtCel.Text;
+                cmd.Parameters.Add(new SqlParameter("@pEmail", SqlDbType.VarChar)).Value = txtEmail.Text;
+                cmd.Parameters.Add(new SqlParameter("@pemail2", SqlDbType.VarChar)).Value = txtEmailC.Text;
+                cmd.Parameters.Add(new SqlParameter("@pSeguro", SqlDbType.VarChar)).Value = cbbSeguro.Text;
+                cmd.Parameters.Add(new SqlParameter("@pFechareg", SqlDbType.Date)).Value = cambiada2;
+                cmd.Parameters.Add(new SqlParameter("@pReferidor", SqlDbType.VarChar)).Value = cbbRef.Text;
+ 
+                cmd.Parameters.Add(new SqlParameter("@pid", SqlDbType.Int)).Direction = ParameterDirection.Output;
                 try
                 {
-                    int i = cmd.ExecuteNonQuery();
-
-
+                 cmd.ExecuteNonQuery();
+                PacienteId = cmd.Parameters["@pid"].Value.ToString();
+           
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error:" + ex.ToString());
+                    con.Close();
                     return;
                 }
                 finally
@@ -395,7 +340,6 @@ namespace SGPAPP
                     log.Accion = "Paciente: " + txtNom.Text + " Guardado";
                     log.Form = "Registro de Pacientes";
                     log.SaveLog();
-                    cargapruebas();
                     GeneraCred();
                     sendmail(txtEmail.Text);
                    
@@ -457,18 +401,18 @@ namespace SGPAPP
         }
         public void GeneraCed()
         {
-            using (var con = new SqlConnection(conect))
-            {
-                string sql = "Select MAX(pid) from tbpacientes";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
-                con.Open();
+            //using (var con = new SqlConnection(conect))
+            //{
+            //    string sql = "Select MAX(pid) from tbpacientes";
+            //    SqlCommand cmd = new SqlCommand(sql, con);
+            //    SqlDataReader reader;
+            //    cmd.CommandType = CommandType.Text;
+            //    con.Open();
 
-                reader = cmd.ExecuteReader();
-                if (reader.Read())
-                {
-                    String CED = reader[0].ToString();
+            //    reader = cmd.ExecuteReader();
+            //    if (reader.Read())
+            //    {
+                    String CED = PacienteId;
                     CED = Convert.ToString(int.Parse(CED));
                     Random rced = new Random();
                     string nums = "000000000000000000000000000000";
@@ -486,10 +430,10 @@ namespace SGPAPP
                     Cedula = Cedula + CED;
                     string result = string.Format("{0:000-0000000-0}", int.Parse(Cedula));
                     Cedula = result;
-                }
-                con.Close();
+                //}
+                //con.Close();
 
-            }
+            //}
         }
         public void Imprimir(object sender, PrintPageEventArgs e)
         {
@@ -532,21 +476,21 @@ namespace SGPAPP
                     contraseniaAleatoria += letra.ToString();
                 }
             }
-
-
             pass = clsEncrypt.GetSHA256(contraseniaAleatoria);
 
 
             using (var con = new SqlConnection(conect))
             {
-                SqlCommand AddPruebas = new SqlCommand("Insert into tbCredenciales values (@Pacid, @Docid, @Password)", con);
                 con.Open();
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spGeneraCredenciales";
+                cmd.Parameters.Add(new SqlParameter("@pid", SqlDbType.VarChar)).Value = PacienteId;
+                cmd.Parameters.Add(new SqlParameter("@Ced", SqlDbType.VarChar)).Value = Cedula;
+                cmd.Parameters.Add(new SqlParameter("@pass", SqlDbType.VarChar)).Value = pass;
+             
+                cmd.ExecuteNonQuery();
 
-                AddPruebas.Parameters.Clear();
-                AddPruebas.Parameters.AddWithValue("@Pacid", Convert.ToString(PacienteId));
-                AddPruebas.Parameters.AddWithValue("@Docid", Cedula);
-                AddPruebas.Parameters.AddWithValue("@Password", pass);
-                AddPruebas.ExecuteNonQuery();
                 con.Close();
 
                 printDocument1 = new PrintDocument();
@@ -606,7 +550,7 @@ namespace SGPAPP
 
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Ha ocurrido un error al enviar resultados al correo: " + txtEmail.Text + ", Contacte al Administrador." + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Ha ocurrido un error al enviar credenciales al correo: " + txtEmail.Text + ", Contacte al Administrador." + ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                 }
             }
@@ -890,10 +834,11 @@ namespace SGPAPP
                             using (var con = new SqlConnection(conect))
                             {
                                 con.Open();
-                                string ct = "select pced, pnom from tbpacientes where pced = '" + txtCed.Text + "'";
-
-                                cmd = new SqlCommand(ct);
-                                cmd.Connection = con;
+                                cmd = new SqlCommand("", con);
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandText = "spValidaCedula";
+                                SqlDataReader rdr;
+                                cmd.Parameters.Add("@ced", SqlDbType.VarChar).Value = txtCed.Text;
                                 rdr = cmd.ExecuteReader();
 
                                 if (rdr.Read() && txtCed.Text != "No Aplica")
@@ -909,9 +854,6 @@ namespace SGPAPP
                                     conviertefecha();
                                     GuardaPacientes();
                                 }
-
-
-
 
                                 DialogResult resulta = MessageBox.Show("Desea asignar una prueba al paciente: " + txtNom.Text + " ?", "Asignar Prueba?", MessageBoxButtons.YesNo);
 
