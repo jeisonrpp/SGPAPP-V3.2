@@ -634,7 +634,7 @@ namespace SGPAPP
                     }
                     else if (resulta == DialogResult.No)
                     {
-
+                        
                     }
                 }
                 else if (lpdf.DialogResult == DialogResult.No)
@@ -1157,11 +1157,13 @@ namespace SGPAPP
 
                 Rows = dataGridView1.Rows.Count;
                 fileArray = new string[Rows];
+                int counter = 0;
+                testvalue = dataGridView1.Rows[counter].Cells["Departamento"].Value.ToString();
 
-                for (int counter = 0; counter < dataGridView1.RowCount; counter++)
+                for (counter = 0; counter < dataGridView1.RowCount; counter++)
                 {
                     num = 0;
-                    testvalue = dataGridView1.Rows[counter].Cells["Departamento"].Value.ToString();
+                    
                     foreach (GridViewRowInfo rowInfo in radGridView1.Rows) if (radGridView1.Rows[rowInfo.Index].Cells[0].Value == null && radGridView1.Rows[rowInfo.Index].Cells[2].Value.ToString() == testvalue || radGridView1.Rows[rowInfo.Index].Cells[0].Value == null && radGridView1.Rows[rowInfo.Index].Cells[2].Value.ToString() == "Hemograma")
                         {
                             
@@ -1174,7 +1176,7 @@ namespace SGPAPP
                     num = num + 1;
 
                     EditPlantilla();
-
+                    break;
                 }
 
 

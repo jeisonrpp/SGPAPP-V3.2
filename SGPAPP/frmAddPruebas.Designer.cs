@@ -29,6 +29,10 @@
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(frmAddPruebas));
+            Telerik.WinControls.UI.GridViewTextBoxColumn gridViewTextBoxColumn1 = new Telerik.WinControls.UI.GridViewTextBoxColumn();
+            Telerik.WinControls.UI.GridViewTextBoxColumn gridViewTextBoxColumn2 = new Telerik.WinControls.UI.GridViewTextBoxColumn();
+            Telerik.WinControls.UI.GridViewTextBoxColumn gridViewTextBoxColumn3 = new Telerik.WinControls.UI.GridViewTextBoxColumn();
+            Telerik.WinControls.UI.GridViewTextBoxColumn gridViewTextBoxColumn4 = new Telerik.WinControls.UI.GridViewTextBoxColumn();
             Telerik.WinControls.UI.TableViewDefinition tableViewDefinition1 = new Telerik.WinControls.UI.TableViewDefinition();
             this.radScrollablePanel1 = new Telerik.WinControls.UI.RadScrollablePanel();
             this.cbbTipo = new System.Windows.Forms.ComboBox();
@@ -264,6 +268,24 @@
             // 
             // 
             // 
+            this.radGridView1.MasterTemplate.AllowAddNewRow = false;
+            this.radGridView1.MasterTemplate.AllowColumnReorder = false;
+            this.radGridView1.MasterTemplate.AllowDeleteRow = false;
+            this.radGridView1.MasterTemplate.AllowDragToGroup = false;
+            this.radGridView1.MasterTemplate.AllowEditRow = false;
+            gridViewTextBoxColumn1.HeaderText = "Resultado";
+            gridViewTextBoxColumn1.Name = "column1";
+            gridViewTextBoxColumn2.HeaderText = "Valor Minimo";
+            gridViewTextBoxColumn2.Name = "column2";
+            gridViewTextBoxColumn3.HeaderText = "Valor Maximo";
+            gridViewTextBoxColumn3.Name = "column3";
+            gridViewTextBoxColumn4.HeaderText = "Unidad";
+            gridViewTextBoxColumn4.Name = "column4";
+            this.radGridView1.MasterTemplate.Columns.AddRange(new Telerik.WinControls.UI.GridViewDataColumn[] {
+            gridViewTextBoxColumn1,
+            gridViewTextBoxColumn2,
+            gridViewTextBoxColumn3,
+            gridViewTextBoxColumn4});
             this.radGridView1.MasterTemplate.ViewDefinition = tableViewDefinition1;
             this.radGridView1.Name = "radGridView1";
             this.radGridView1.Size = new System.Drawing.Size(696, 144);

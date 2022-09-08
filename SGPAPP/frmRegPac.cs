@@ -318,7 +318,9 @@ namespace SGPAPP
                 cmd.Parameters.Add(new SqlParameter("@pSeguro", SqlDbType.VarChar)).Value = cbbSeguro.Text;
                 cmd.Parameters.Add(new SqlParameter("@pFechareg", SqlDbType.Date)).Value = cambiada2;
                 cmd.Parameters.Add(new SqlParameter("@pReferidor", SqlDbType.VarChar)).Value = cbbRef.Text;
- 
+                cmd.Parameters.Add(new SqlParameter("@pEmpresa", SqlDbType.VarChar)).Value= DBNull.Value;
+                cmd.Parameters.Add(new SqlParameter("@plotid", SqlDbType.VarChar)).Value = DBNull.Value;
+
                 cmd.Parameters.Add(new SqlParameter("@pid", SqlDbType.Int)).Direction = ParameterDirection.Output;
                 try
                 {

@@ -57,7 +57,7 @@ namespace SGPAPP
             {
                 txtResult.Enabled = true;
                 txtUnd2.Enabled = true;
-                txtMax2.Enabled = true;
+                txtMin1.Enabled = true;
                 txtMax2.Enabled = true;
                 btnAdd.Enabled = true;
                 btnEliminar.Enabled = true;
@@ -68,7 +68,7 @@ namespace SGPAPP
             {
                 txtResult.Enabled = false;
                 txtUnd2.Enabled = false;
-                txtMax2.Enabled = false;
+                txtMin1.Enabled = false;
                 txtMax2.Enabled = false;
                 btnAdd.Enabled = false;
                 btnEliminar.Enabled = false;
