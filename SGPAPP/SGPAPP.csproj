@@ -30,7 +30,7 @@
     <MinimumRequiredVersion>3.0.0.0</MinimumRequiredVersion>
     <CreateWebPageOnPublish>true</CreateWebPageOnPublish>
     <WebPage>publish.htm</WebPage>
-    <ApplicationRevision>1</ApplicationRevision>
+    <ApplicationRevision>5</ApplicationRevision>
     <ApplicationVersion>3.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>
@@ -57,10 +57,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestCertificateThumbprint>C2179A667B792A0905E295402DA697C703ED22B5</ManifestCertificateThumbprint>
+    <ManifestCertificateThumbprint>FF98F314450A6C7A4F3A56A60E11F449D071948B</ManifestCertificateThumbprint>
   </PropertyGroup>
   <PropertyGroup>
-    <ManifestKeyFile>SGPAPP_3_TemporaryKey.pfx</ManifestKeyFile>
+    <ManifestKeyFile>SGPAPP_4_TemporaryKey.pfx</ManifestKeyFile>
   </PropertyGroup>
   <PropertyGroup>
     <GenerateManifests>true</GenerateManifests>
@@ -795,6 +795,7 @@
     <None Include="SGPAPP_1_TemporaryKey.pfx" />
     <None Include="SGPAPP_2_TemporaryKey.pfx" />
     <None Include="SGPAPP_3_TemporaryKey.pfx" />
+    <None Include="SGPAPP_4_TemporaryKey.pfx" />
     <None Include="SGPAPP_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>

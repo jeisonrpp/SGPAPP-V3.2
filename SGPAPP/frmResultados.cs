@@ -144,25 +144,27 @@ namespace SGPAPP
                     {
                         if (Especial == "1")
                         {
-                            con.Open();
-                            cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
-                            SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                            DataSet myDataSet = new DataSet();
-                            myDA.Fill(myDataSet, "Pruebas");
-                            dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
-                            dataGridView2.Columns["Tipo"].DisplayIndex = 0;
-                            dataGridView2.Columns["Prueba"].DisplayIndex = 1;
-                            dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
-                            con.Close();
-                            for (int i =0; i < dataGridView2.RowCount; i++)
-                            {
-                                int Rows;
-                                Rows = dataGridView1.RowCount - 1;
-                                dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
-                                dataGridView1.DataSource = dt;
-                                btnSave.Enabled = true;
+                            
+                                con.Open();
+                                cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
+                                SqlDataAdapter myDA = new SqlDataAdapter(cmd);
+                                DataSet myDataSet = new DataSet();
+                                myDA.Fill(myDataSet, "Pruebas");
+                                dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
+                                dataGridView2.Columns["Tipo"].DisplayIndex = 0;
+                                dataGridView2.Columns["Prueba"].DisplayIndex = 1;
+                                dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
+                                con.Close();
+                                for (int i = 0; i < dataGridView2.RowCount; i++)
+                                {
+                                    int Rows;
+                                    Rows = dataGridView1.RowCount - 1;
+                                    dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
+                                    dataGridView1.DataSource = dt;
+                                    btnSave.Enabled = true;
+                                }
                             }
-                        }
+                                                   
                         else
 
                         {
@@ -194,6 +196,9 @@ namespace SGPAPP
                 {
                     if (Especial == "1")
                     {
+
+                    if (dataGridView2.Rows.Count < 1 && dataGridView1.Rows.Count < 1)
+                        {
                         con.Open();
                         cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
                         SqlDataAdapter myDA = new SqlDataAdapter(cmd);
@@ -214,12 +219,25 @@ namespace SGPAPP
                         }
                     }
                     else
+                    {
+                        MessageBox.Show("Esta prueba solo puede agregarse de manera individual, elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                    }
+                    else
 
                     {
-                        int Rows;
-                        Rows = dataGridView1.RowCount - 1;
-                        dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text);
-                        dataGridView1.DataSource = dt;
+                        if (dataGridView2.Rows.Count < 1 )
+                        {
+                            int Rows;
+                            Rows = dataGridView1.RowCount - 1;
+                            dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text);
+                            dataGridView1.DataSource = dt;
+                        }
+                        else
+                        {
+                            MessageBox.Show("Para agregar otra prueba elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        }
                     }
                 }
             }
@@ -572,11 +590,26 @@ namespace SGPAPP
         {
             try
             {
-                if (dataGridView1.Rows.Count >= 1)
+                if (dataGridView2.Rows.Count >= 1)
+                {
+                    dataGridView1.DataSource = null;
+                    //int rowdgb1 = dataGridView1.Rows.Count;
+                    //for (int i = 0; i < rowdgb1; i++)
+                    //{
+                    //    dataGridView1.Rows.RemoveAt(i);
+                    //}
+                   
+                    dataGridView2.DataSource = null;
+                    dt.Rows.Clear();
+                    
+
+                }
+               else if (dataGridView1.Rows.Count >= 1)
                 {
                     int rowIndex = dataGridView1.CurrentCell.RowIndex;
                     dataGridView1.Rows.RemoveAt(rowIndex);
                 }
+
             }
             catch (Exception ex)
             {
