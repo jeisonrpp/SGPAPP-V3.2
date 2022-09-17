@@ -73,6 +73,7 @@ namespace SGPAPP
 
                 using (var con = new SqlConnection(conect))
                 {
+                    radGridView1.DataSource = null;
                     con.Open();
                     SqlDataAdapter da = new SqlDataAdapter("spEmpresasReport", con);
                     DataTable dt = new DataTable();
