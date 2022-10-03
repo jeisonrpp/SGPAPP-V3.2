@@ -286,6 +286,7 @@ namespace SGPPDFController
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
+                Presult = false;
                 string ct2 = "select reid, repaciente from tbpreresultados where reid = '" + cpreid + "' and repaciente = '"+repaciente+"'";
                 cmd = new SqlCommand(ct2);
                 cmd.Connection = con;
@@ -649,7 +650,7 @@ namespace SGPPDFController
                 ObjDoc.Bookmarks.Add("dir", ref rango6);
                 ObjDoc.Bookmarks.Add("fecham", ref rango7);
                 ObjDoc.Bookmarks.Add("DEPTO", ref rango8);
-                ObjWord.Visible = true;
+                ObjWord.Visible = false;
                 if (File.Exists(rutasave))
                 {
                     File.Delete(rutasave);

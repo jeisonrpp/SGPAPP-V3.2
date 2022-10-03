@@ -166,12 +166,14 @@ namespace MailSenderController
 
                             rd.GetNo();
             Statuslabel("Procesando envio...", Color.DarkSlateGray);
-            docname = repaciente + "-" + rd.RandomNo + ".pdf";
-            filename = @"C:\SGP\" + repaciente + "-" + rd.RandomNo + ".pdf";
+            
 
-            System.IO.File.WriteAllBytes(filename, reDocPDF);
+         
                             if (reprueba != "HIV" && cmintento < 3)
                             {
+                                docname = repaciente + "-" + rd.RandomNo + ".pdf";
+                                filename = @"C:\SGP\" + repaciente + "-" + rd.RandomNo + ".pdf";
+                                System.IO.File.WriteAllBytes(filename, reDocPDF);
                                 if (cmpruebaempresaid != 0)
                                 {
                                     sendmailgrupo(cmmail);
