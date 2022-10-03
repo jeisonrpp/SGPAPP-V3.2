@@ -39,7 +39,7 @@ namespace SGPAPP
         bool Existe;
         string cambiada1;
         DateTime Hora;
-        String Especial = "";
+        bool Especial;
         int ID;
         String Sql;
 
@@ -104,7 +104,7 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
 
-                string sql = "SELECT RTRIM(prTiempo) as [Tiempo], RTRIM(prEspecial) as [Especial], RTRIM(prid) as [ID] from tbPruebas where prTipo = '" + cbbTipo.Text + "' and prNombre = '" + cbbPrueba.Text + "'";
+                string sql = "SELECT RTRIM(prTiempo) as [Tiempo], prEspecial as [Especial], RTRIM(prid) as [ID] from tbPruebas where prTipo = '" + cbbTipo.Text + "' and prNombre = '" + cbbPrueba.Text + "'";
                 SqlCommand cmd = new SqlCommand(sql, con);
                 SqlDataReader reader;
                 cmd.CommandType = CommandType.Text;
@@ -116,7 +116,7 @@ namespace SGPAPP
                     if (reader.Read())
                     {
                         Time = reader[0].ToString();
-                        Especial = reader[1].ToString();
+                        Especial = Convert.ToBoolean(reader[1].ToString());
                         ID = int.Parse(reader[2].ToString());
                     }
                     else
@@ -142,37 +142,37 @@ namespace SGPAPP
                 else
                 {
                     {
-                        if (Especial == "1")
-                        {
+                        //if (Especial == "1")
+                        //{
                             
-                                con.Open();
-                                cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
-                                SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                                DataSet myDataSet = new DataSet();
-                                myDA.Fill(myDataSet, "Pruebas");
-                                dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
-                                dataGridView2.Columns["Tipo"].DisplayIndex = 0;
-                                dataGridView2.Columns["Prueba"].DisplayIndex = 1;
-                                dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
-                                con.Close();
-                                for (int i = 0; i < dataGridView2.RowCount; i++)
-                                {
-                                    int Rows;
-                                    Rows = dataGridView1.RowCount - 1;
-                                    dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
-                                    dataGridView1.DataSource = dt;
-                                    btnSave.Enabled = true;
-                                }
-                            }
+                        //        con.Open();
+                        //        cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
+                        //        SqlDataAdapter myDA = new SqlDataAdapter(cmd);
+                        //        DataSet myDataSet = new DataSet();
+                        //        myDA.Fill(myDataSet, "Pruebas");
+                        //        dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
+                        //        dataGridView2.Columns["Tipo"].DisplayIndex = 0;
+                        //        dataGridView2.Columns["Prueba"].DisplayIndex = 1;
+                        //        dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
+                        //        con.Close();
+                        //        for (int i = 0; i < dataGridView2.RowCount; i++)
+                        //        {
+                        //            int Rows;
+                        //            Rows = dataGridView1.RowCount - 1;
+                        //            dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
+                        //            dataGridView1.DataSource = dt;
+                        //            btnSave.Enabled = true;
+                        //        }
+                        //    }
                                                    
-                        else
+                        //else
 
-                        {
+                        //{
                             int Rows;
                             Rows = dataGridView1.RowCount - 1;
-                            dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text);
+                            dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text, Especial);
                             dataGridView1.DataSource = dt;
-                        }
+                     //   }
                     }
                 }
             }
@@ -194,51 +194,51 @@ namespace SGPAPP
             {
                 using (var con = new SqlConnection(conect))
                 {
-                    if (Especial == "1")
-                    {
+                    //if (Especial == true)
+                    //{
 
-                    if (dataGridView2.Rows.Count < 1 && dataGridView1.Rows.Count < 1)
-                        {
-                        con.Open();
-                        cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
-                        SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                        DataSet myDataSet = new DataSet();
-                        myDA.Fill(myDataSet, "Pruebas");
-                        dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
-                        dataGridView2.Columns["Tipo"].DisplayIndex = 0;
-                        dataGridView2.Columns["Prueba"].DisplayIndex = 1;
-                        dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
-                        con.Close();
-                        for (int i = 0; i < dataGridView2.RowCount; i++)
-                        {
+                    //if (dataGridView2.Rows.Count < 1 && dataGridView1.Rows.Count < 1)
+                    //    {
+                    //    con.Open();
+                    //    cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
+                    //    SqlDataAdapter myDA = new SqlDataAdapter(cmd);
+                    //    DataSet myDataSet = new DataSet();
+                    //    myDA.Fill(myDataSet, "Pruebas");
+                    //    dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
+                    //    dataGridView2.Columns["Tipo"].DisplayIndex = 0;
+                    //    dataGridView2.Columns["Prueba"].DisplayIndex = 1;
+                    //    dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
+                    //    con.Close();
+                    //    for (int i = 0; i < dataGridView2.RowCount; i++)
+                    //    {
+                    //        int Rows;
+                    //        Rows = dataGridView1.RowCount - 1;
+                    //        dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
+                    //        dataGridView1.DataSource = dt;
+                    //        btnSave.Enabled = true;
+                    //    }
+                    //}
+                    //else
+                    //{
+                    //    MessageBox.Show("Esta prueba solo puede agregarse de manera individual, elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    //}
+
+                    //}
+                    //else
+
+                    //{
+                    //    if (dataGridView2.Rows.Count < 1 )
+                    //    {
                             int Rows;
                             Rows = dataGridView1.RowCount - 1;
-                            dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
+                            dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text, Especial);
                             dataGridView1.DataSource = dt;
-                            btnSave.Enabled = true;
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Esta prueba solo puede agregarse de manera individual, elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-
-                    }
-                    else
-
-                    {
-                        if (dataGridView2.Rows.Count < 1 )
-                        {
-                            int Rows;
-                            Rows = dataGridView1.RowCount - 1;
-                            dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text);
-                            dataGridView1.DataSource = dt;
-                        }
-                        else
-                        {
-                            MessageBox.Show("Para agregar otra prueba elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        }
-                    }
+                        //}
+                        //else
+                        //{
+                        //    MessageBox.Show("Para agregar otra prueba elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        //}
+                    //}
                 }
             }
         }
@@ -273,10 +273,12 @@ namespace SGPAPP
             dt.Columns.Add("Tiempo", typeof(string));
             dt.Columns.Add("Fecha de Muestra", typeof(string));
             dt.Columns.Add("Metodo", typeof(string));
+            dt.Columns.Add("Especial", typeof(bool));
 
-
+            
 
             dataGridView1.DataSource = dt;
+            dataGridView1.Columns["Especial"].Visible = false;
         }
         public void CargacbbTipo()
         {
@@ -630,33 +632,49 @@ namespace SGPAPP
                     try
                     {
                         bool espc = false;
-                        if (Especial == "1")
-                        {
-                            espc = true;
+                        //if (Especial == true)
+                        //{
+                        //    espc = true;
 
 
-                            if (dataGridView1.RowCount >= 1)
-                            {
-                                cmd = new SqlCommand(Sql, con);
-                                cmd.CommandType = CommandType.StoredProcedure;
-                                cmd.CommandText = "spInsertPruebasPendientes";
-                                cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = pacID;
-                                cmd.Parameters.Add(new SqlParameter("@pnombre", SqlDbType.VarChar)).Value = lblname.Text;
-                                cmd.Parameters.Add(new SqlParameter("@pcedula", SqlDbType.VarChar)).Value = Cedula;
-                                cmd.Parameters.Add(new SqlParameter("@tipoprueba", SqlDbType.VarChar)).Value = cbbTipo.Text;
-                                cmd.Parameters.Add(new SqlParameter("@prueba", SqlDbType.NChar)).Value = cbbPrueba.Text;
-                                cmd.Parameters.Add(new SqlParameter("@fecha", SqlDbType.Date)).Value = cambiada1;
-                                cmd.Parameters.Add(new SqlParameter("@hora", SqlDbType.Time)).Value = Hora.ToString("HH:mm");
-                                cmd.Parameters.Add(new SqlParameter("@empresaid", SqlDbType.Int)).Value = DBNull.Value;
-                                cmd.Parameters.Add(new SqlParameter("@especial", SqlDbType.Bit)).Value = espc;
-                                cmd.Parameters.Add(new SqlParameter("@prid", SqlDbType.Int)).Value = ID;
-                                cmd.ExecuteNonQuery();
-                            }
-                        }
-                        else
-                        {
+                        //    if (dataGridView1.RowCount >= 1)
+                        //    {
+                        //        cmd = new SqlCommand(Sql, con);
+                        //        cmd.CommandType = CommandType.StoredProcedure;
+                        //        cmd.CommandText = "spInsertPruebasPendientes";
+                        //        cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = pacID;
+                        //        cmd.Parameters.Add(new SqlParameter("@pnombre", SqlDbType.VarChar)).Value = lblname.Text;
+                        //        cmd.Parameters.Add(new SqlParameter("@pcedula", SqlDbType.VarChar)).Value = Cedula;
+                        //        cmd.Parameters.Add(new SqlParameter("@tipoprueba", SqlDbType.VarChar)).Value = cbbTipo.Text;
+                        //        cmd.Parameters.Add(new SqlParameter("@prueba", SqlDbType.NChar)).Value = cbbPrueba.Text;
+                        //        cmd.Parameters.Add(new SqlParameter("@fecha", SqlDbType.Date)).Value = cambiada1;
+                        //        cmd.Parameters.Add(new SqlParameter("@hora", SqlDbType.Time)).Value = Hora.ToString("HH:mm");
+                        //        cmd.Parameters.Add(new SqlParameter("@empresaid", SqlDbType.Int)).Value = DBNull.Value;
+                        //        cmd.Parameters.Add(new SqlParameter("@especial", SqlDbType.Bit)).Value = espc;
+                        //        cmd.Parameters.Add(new SqlParameter("@prid", SqlDbType.Int)).Value = ID;
+                        //        cmd.ExecuteNonQuery();
+                        //    }
+                        //}
+                        //else
+                        //{
                             foreach (DataGridViewRow row in dataGridView1.Rows)
                             {
+
+                                string sql = "SELECT RTRIM(prid) as [ID] from tbPruebas where prTipo = '" + Convert.ToString(row.Cells["Tipo"].Value) + "' and prNombre = '" + Convert.ToString(row.Cells["Prueba"].Value) + "'";
+                                SqlCommand cm = new SqlCommand(sql, con);
+                                SqlDataReader reader;
+                                cm.CommandType = CommandType.Text;
+                             
+                                    reader = cm.ExecuteReader();
+                                    if (reader.Read())
+                                    {                                       
+                                        ID = int.Parse(reader[0].ToString());
+                                    }
+                                    else
+                                    {
+                                        MessageBox.Show("No se ha encontrado registro!");
+                                    }
+                                reader.Close();
                                 cmd = new SqlCommand(Sql, con);
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.CommandText = "spInsertPruebasPendientes";
@@ -668,10 +686,10 @@ namespace SGPAPP
                                 cmd.Parameters.Add(new SqlParameter("@fecha", SqlDbType.Date)).Value = cambiada1;
                                 cmd.Parameters.Add(new SqlParameter("@hora", SqlDbType.Time)).Value = Hora.ToString("HH:mm");
                                 cmd.Parameters.Add(new SqlParameter("@empresaid", SqlDbType.Int)).Value = DBNull.Value;
-                                cmd.Parameters.Add(new SqlParameter("@especial", SqlDbType.Bit)).Value = espc;
+                                cmd.Parameters.Add(new SqlParameter("@especial", SqlDbType.Bit)).Value = row.Cells["Especial"].Value;
                                 cmd.Parameters.Add(new SqlParameter("@prid", SqlDbType.Int)).Value = ID;
                                 cmd.ExecuteNonQuery();
-                            }
+                           // }
                         }
 
                         //foreach (DataGridViewRow row in dataGridView1.Rows)

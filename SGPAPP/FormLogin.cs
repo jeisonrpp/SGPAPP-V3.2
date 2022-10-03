@@ -230,7 +230,7 @@ namespace SGPAPP
 
                         }
                         Logs log = new Logs();
-                        log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + "";
+                        log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + " v3.3";
                         log.Form = "Login";
                         log.SaveLog();
                         con.Close();
@@ -363,7 +363,7 @@ namespace SGPAPP
 
                             }
                             Logs log = new Logs();
-                            log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + "";
+                            log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + " v3.3";
                             log.Form = "Login";
                             log.SaveLog();
                             con.Close();
