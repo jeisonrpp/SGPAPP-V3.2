@@ -262,6 +262,8 @@ namespace SGPPDFController
 
         public void ValidaPrueba()
         {
+            validapr = false;
+            especial = false; 
             using (var con = new SqlConnection(conect))
             {
                 con.Open();

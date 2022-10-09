@@ -46,33 +46,35 @@ namespace SGPAPP
         public void GetPaciente()
         {
             using (var con = new SqlConnection(conect))
-            {                
-                string sql = "SELECT RTRIM(pNom) as [Paciente], RTRIM(pSex) as [Sexo], RTRIM(pFecha) as [Edad] from tbpacientes where pID = '" + pacID + "'";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
+            {
                 con.Open();
+                SqlCommand cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spGetPacientes";
+                cmd.Parameters.Add(new SqlParameter("@Nombre", SqlDbType.VarChar)).Value = pacID;
+                cmd.Parameters.Add(new SqlParameter("@Fechadesde", SqlDbType.VarChar)).Value = "edit";
+                cmd.Parameters.Add(new SqlParameter("@Fechahasta", SqlDbType.VarChar)).Value = (object)DBNull.Value;
+                SqlDataReader reader;
 
                 try
                 {
                     reader = cmd.ExecuteReader();
                     if (reader.Read())
                     {
-                        lblname.Text = reader[0].ToString();
-                        lblSex.Text = reader[1].ToString();
-                        Age = reader[2].ToString();
+
+                        lblname.Text = reader[1].ToString();
+                        lblSex.Text = reader[10].ToString();
+                        Age = reader[3].ToString();
                         if (Age == "1900-01-01")
                         {
                             lblage.Text = "-";
                         }
                         else
                         {
-                           
+
                             Age = Convert.ToString(DateTime.Today.AddTicks(-DateTime.Parse(Age).Ticks).Year - 1);
                             lblage.Text = Age.ToString() + " años";
                         }
-              
-
                     }
                     else
                     {
@@ -81,12 +83,11 @@ namespace SGPAPP
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show("Error: " + ex.ToString());
-                }
-                finally
-                {
+                    MessageBox.Show("Error:" + ex.ToString());
                     con.Close();
+
                 }
+                con.Close();
             }
         }
 
@@ -104,11 +105,16 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
 
-                string sql = "SELECT RTRIM(prTiempo) as [Tiempo], prEspecial as [Especial], RTRIM(prid) as [ID] from tbPruebas where prTipo = '" + cbbTipo.Text + "' and prNombre = '" + cbbPrueba.Text + "'";
-                SqlCommand cmd = new SqlCommand(sql, con);
+                 con.Open();
+                SqlCommand cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spValidaPruebasParaAsignar";
                 SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
-                con.Open();
+                cmd.Parameters.Add("@pid", SqlDbType.Int).Value = pacID;
+                cmd.Parameters.Add("@prueba", SqlDbType.VarChar).Value = cbbPrueba.Text;
+                cmd.Parameters.Add("@tipop", SqlDbType.VarChar).Value = cbbTipo.Text;
+                cmd.Parameters.Add("@paso", SqlDbType.VarChar).Value = 3;
+
 
                 try
                 {
@@ -285,12 +291,12 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select distinct(prTipo) as Tipos from tbPruebas order by prTipo", con);
-
-                da.Fill(ds, "Tipos");
-                cbbTipo.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetTiposPruebas", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                sqlData.SelectCommand.Parameters.AddWithValue("@Empresas", false);
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbTipo.DataSource = table;
                 cbbTipo.ValueMember = "Tipos";
                 cbbTipo.Text = "Seleccione el Tipo";
                 cbbPrueba.Text = "Seleccione la Prueba";
@@ -303,12 +309,12 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select (prNombre) as Pruebas from tbPruebas where prTipo = '" + cbbTipo.Text + "' order by prNombre", con);
-
-                da.Fill(ds, "Pruebas");
-                cbbPrueba.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetPruebasPorTipo", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                sqlData.SelectCommand.Parameters.Add("@tipo", SqlDbType.VarChar).Value = cbbTipo.Text;
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbPrueba.DataSource = table;
                 cbbPrueba.ValueMember = "Pruebas";
                 cbbPrueba.Text = "Seleccione la Prueba";
                 con.Close();
@@ -373,44 +379,7 @@ namespace SGPAPP
             //    con.Close();
             //}
         }
-        public void getResultados()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                try
-                {
-                    string sql = "Select reid, repacid from tbresultados where repacid = '" + pacID + "' and reprueba = '" + cbbPrueba.Text + "' and refecha = '"+cambiada1+"' ";
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    SqlDataReader reader;
-                    cmd.CommandType = CommandType.Text;
-                    con.Open();
-
-
-                    reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        MessageBox.Show("Este paciente ya tiene una prueba de este tipo reportada el dia de hoy, esta prueba no se le puede asignar nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-
-                    }
-                    else
-                    {
-                        Insertadgv();
-                        btnSave.Enabled = true;
-                    }
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-
-                finally
-                {
-                    con.Close();
-                }
-            }
-        }
+      
         private void button1_Click(object sender, EventArgs e)
         {
            
@@ -444,11 +413,16 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
-                string sql = "SELECT * from tbPruebasPendientes where pppacid = '" + pacID + "' and ppPrueba = '"+cbbPrueba.Text+"'";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
                 con.Open();
+                SqlCommand cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spValidaPruebasParaAsignar";
+                SqlDataReader reader;
+                cmd.Parameters.Add("@pid", SqlDbType.Int).Value = pacID;
+                cmd.Parameters.Add("@prueba", SqlDbType.VarChar).Value = cbbPrueba.Text;
+                cmd.Parameters.Add("@tipop", SqlDbType.VarChar).Value = cbbTipo.Text;
+                cmd.Parameters.Add("@paso", SqlDbType.VarChar).Value = 1;
+
 
                 try
                 {
@@ -481,11 +455,15 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
-                string sql = "select * from tbresultados where refecha  >= DATEADD(day, -1, GETDATE()) and repacid = '" + pacID + "' and rePrueba = '" + cbbPrueba.Text + "'";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
                 con.Open();
+                SqlCommand cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spValidaPruebasParaAsignar";
+                SqlDataReader reader;
+                cmd.Parameters.Add("@pid", SqlDbType.Int).Value = pacID;
+                cmd.Parameters.Add("@prueba", SqlDbType.VarChar).Value = cbbPrueba.Text;
+                cmd.Parameters.Add("@tipop", SqlDbType.VarChar).Value = cbbTipo.Text;
+                cmd.Parameters.Add("@paso", SqlDbType.VarChar).Value = 2;
 
                 try
                 {
@@ -535,29 +513,7 @@ namespace SGPAPP
         {
            
         }       
-        public void UpdateCitas()
-        {
-            
-            using (var con = new SqlConnection(conect))
-            {
-                string sqls = "update tbcitas set cEstatus= 'Completada' where pID = '" + pacID + "' and cFecha = '" + cambiada1 + "'";
-                SqlCommand cmds = new SqlCommand(sqls, con);
-                cmds.CommandType = CommandType.Text;
-                con.Open();
-                try
-                {
-                    int i = cmds.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:" + ex.ToString());
-                }
-                finally
-                {
-                    con.Close();
-                }
-            }
-        }
+        
         public void SaveLog()
         {
             Logs log = new Logs();
@@ -660,21 +616,21 @@ namespace SGPAPP
                             foreach (DataGridViewRow row in dataGridView1.Rows)
                             {
 
-                                string sql = "SELECT RTRIM(prid) as [ID] from tbPruebas where prTipo = '" + Convert.ToString(row.Cells["Tipo"].Value) + "' and prNombre = '" + Convert.ToString(row.Cells["Prueba"].Value) + "'";
-                                SqlCommand cm = new SqlCommand(sql, con);
-                                SqlDataReader reader;
-                                cm.CommandType = CommandType.Text;
+                                //string sql = "SELECT RTRIM(prid) as [ID] from tbPruebas where prTipo = '" + Convert.ToString(row.Cells["Tipo"].Value) + "' and prNombre = '" + Convert.ToString(row.Cells["Prueba"].Value) + "'";
+                                //SqlCommand cm = new SqlCommand(sql, con);
+                                //SqlDataReader reader;
+                                //cm.CommandType = CommandType.Text;
                              
-                                    reader = cm.ExecuteReader();
-                                    if (reader.Read())
-                                    {                                       
-                                        ID = int.Parse(reader[0].ToString());
-                                    }
-                                    else
-                                    {
-                                        MessageBox.Show("No se ha encontrado registro!");
-                                    }
-                                reader.Close();
+                                //    reader = cm.ExecuteReader();
+                                //    if (reader.Read())
+                                //    {                                       
+                                //        ID = int.Parse(reader[0].ToString());
+                                //    }
+                                //    else
+                                //    {
+                                //        MessageBox.Show("No se ha encontrado registro!");
+                                //    }
+                                //reader.Close();
                                 cmd = new SqlCommand(Sql, con);
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.CommandText = "spInsertPruebasPendientes";
@@ -687,7 +643,7 @@ namespace SGPAPP
                                 cmd.Parameters.Add(new SqlParameter("@hora", SqlDbType.Time)).Value = Hora.ToString("HH:mm");
                                 cmd.Parameters.Add(new SqlParameter("@empresaid", SqlDbType.Int)).Value = DBNull.Value;
                                 cmd.Parameters.Add(new SqlParameter("@especial", SqlDbType.Bit)).Value = row.Cells["Especial"].Value;
-                                cmd.Parameters.Add(new SqlParameter("@prid", SqlDbType.Int)).Value = ID;
+                                cmd.Parameters.Add(new SqlParameter("@prid", SqlDbType.Int)).Value = DBNull.Value;
                                 cmd.ExecuteNonQuery();
                            // }
                         }

@@ -178,6 +178,7 @@ namespace SGPAPP
 
         private void frmMain_Load(object sender, EventArgs e)
         {
+            this.Text = "Sistema de Gestion de Pacientes V3.4";
             Privilegios();
             lblUserName.Text = UserCache.Usuario;
             label1.Text = UserCache.Nivel;          

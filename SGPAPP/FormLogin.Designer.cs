@@ -180,7 +180,7 @@ namespace SGPAPP
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(46, 18);
             this.label2.TabIndex = 102;
-            this.label2.Text = "V 3.3";
+            this.label2.Text = "V 3.4";
             // 
             // linkLabel1
             // 

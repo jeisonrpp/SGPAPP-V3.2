@@ -47,24 +47,18 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
-                try
-                { 
+
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select (segSeguro) as Seguros from tbSeguros order by segseguro", con);
-
-                da.Fill(ds, "Seguros");
-                cbbSeguro.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetSeguros", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbSeguro.DataSource = table;
                 cbbSeguro.ValueMember = "Seguros";
                 cbbSeguro.Text = "Seleccione el Seguro";
                 con.Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
+
+
             }
         }
         public void CargaDatos()
@@ -73,12 +67,14 @@ namespace SGPAPP
             {
                 try
                 {
-                    string sql = "Select pid, pNom, pCed, pFecha, pSex, pSeguro, pDir,pCel, pEmail, pemail2, preferidor from tbpacientes where pid = '" + PacID + "'  ";
-                    SqlCommand cmd = new SqlCommand(sql, con);
+                          con.Open();
+                    cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spGetPacientes";
                     SqlDataReader reader;
-                    cmd.CommandType = CommandType.Text;
-                    con.Open();
-
+                    cmd.Parameters.Add("@nombre", SqlDbType.VarChar).Value = PacID;
+                    cmd.Parameters.Add("@Fechadesde", SqlDbType.VarChar).Value = "edit";
+                    cmd.Parameters.Add("@fechahasta", SqlDbType.VarChar).Value = DBNull.Value;
 
                     reader = cmd.ExecuteReader();
                     if (reader.Read())
@@ -87,13 +83,13 @@ namespace SGPAPP
                         txtNom.Text = reader[1].ToString();
                         txtCed.Text = reader[2].ToString();
                         dtp.Text = reader[3].ToString();
-                        Sex = reader[4].ToString();
-                        cbbSeguro.Text = reader[5].ToString();
-                        txtDir.Text = reader[6].ToString();
-                        txtCel.Text = reader[7].ToString();
-                        txtEmail.Text = reader[8].ToString();
-                        txtEmail2.Text = reader[9].ToString();
-                        cbbRef.Text = reader[10].ToString();
+                        Sex = reader[10].ToString();
+                        cbbSeguro.Text = reader[9].ToString();
+                        txtDir.Text = reader[4].ToString();
+                        txtCel.Text = reader[5].ToString();
+                        txtEmail.Text = reader[6].ToString();
+                        txtEmail2.Text = reader[7].ToString();
+                        cbbRef.Text = reader[13].ToString();
 
                         if (Sex == "Masculino")
                         {
@@ -318,108 +314,47 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
-                try
-                {
-                    string sql = "update tbpacientes set pNom = '" + txtNom.Text + "', pCed= '" + txtCed.Text + "', pSex= '" + Sex + "', pFecha= '" + cambiada1 + "', pSeguro= '" + cbbSeguro.Text + "',  pDir= '" + txtDir.Text + "',  pCel= '" + txtCel.Text + "', pEmail= '" + txtEmail.Text + "', pEmail2= '" + txtEmail2.Text + "', preferidor = '"+cbbRef.Text+"'  where pid = '" + PacID + "'";
-
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    cmd.CommandType = CommandType.Text;
-                    con.Open();
-
-                    int i = cmd.ExecuteNonQuery();
-                    if (i > 0)
-                        SaveLog();
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-
-                finally
-                {
-                    con.Close();
-
-                }
-            }
-
-            using (var con = new SqlConnection(conect))
-            {
-                try { 
-                string sql = "update tbpruebaspendientes set pppaciente = '" + txtNom.Text + "', ppcedula= '" + txtCed.Text + "' where pppacid = '" + PacID + "'";
-
-                SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-              
-                    int i = cmd.ExecuteNonQuery();
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-                finally
-                {
-                    con.Close();
-
-                }
-            }
-
-            using (var con = new SqlConnection(conect))
-            {
-
                 String Age = cambiada1;
                 Age = Convert.ToString(DateTime.Today.AddTicks(-DateTime.Parse(Age).Ticks).Year - 1);
                 Age = Age + " años";
-                string sql = "update tbresultados set repaciente = '" + txtNom.Text + "', reced= '" + txtCed.Text + "', refechan= '" + cambiada1 + "', reEdad= '" + Age + "', redir= '" + txtDir.Text + "' where repacid = '" + PacID + "'";
 
-                SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.CommandType = CommandType.Text;
                 con.Open();
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spUpdatePacientes";
+                cmd.Parameters.Add(new SqlParameter("@pNom", SqlDbType.VarChar)).Value = txtNom.Text;
+                cmd.Parameters.Add(new SqlParameter("@pCed", SqlDbType.VarChar)).Value = txtCed.Text;
+                cmd.Parameters.Add(new SqlParameter("@pSex", SqlDbType.VarChar)).Value = Sex;
+                cmd.Parameters.Add(new SqlParameter("@pFecha", SqlDbType.VarChar)).Value = cambiada1;
+                cmd.Parameters.Add(new SqlParameter("@pDir", SqlDbType.VarChar)).Value = txtDir.Text;
+                cmd.Parameters.Add(new SqlParameter("@pCel", SqlDbType.VarChar)).Value = txtCel.Text;
+                cmd.Parameters.Add(new SqlParameter("@pEmail", SqlDbType.VarChar)).Value = txtEmail.Text;
+                cmd.Parameters.Add(new SqlParameter("@pemail2", SqlDbType.VarChar)).Value = txtEmail2.Text;
+                cmd.Parameters.Add(new SqlParameter("@pSeguro", SqlDbType.VarChar)).Value = cbbSeguro.Text;
+                cmd.Parameters.Add(new SqlParameter("@pReferidor", SqlDbType.VarChar)).Value = cbbRef.Text;
+                cmd.Parameters.Add(new SqlParameter("@pid", SqlDbType.Int)).Value = PacID;
+                cmd.Parameters.Add(new SqlParameter("@edad", SqlDbType.VarChar)).Value = Age;
+
                 try
                 {
-                    int i = cmd.ExecuteNonQuery();
+                    cmd.ExecuteNonQuery();
 
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show("Error:" + ex.ToString());
+                    con.Close();
+                    return;
                 }
                 finally
                 {
                     con.Close();
-
-                }
-            }
-            using (var con = new SqlConnection(conect))
-            {
-                try { 
-              
-                string sql = "update tbcredenciales set cdocumentid = '" + txtCed.Text + "' where cpacid = '" + PacID + "'";
-
-                SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-               
-                    int i = cmd.ExecuteNonQuery();
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-                finally
-                {
-                    con.Close();
-
+                    MessageBox.Show("Paciente Actualizado Correctamente", "Guardado Satisfactorio", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    SaveLog();
                 }
             }
 
-            MessageBox.Show("Paciente Actualizado Correctamente", "Guardado Satisfactorio", MessageBoxButtons.OK, MessageBoxIcon.Information);
+         
             limpiar();
             this.DialogResult = DialogResult.OK;
             this.Close();

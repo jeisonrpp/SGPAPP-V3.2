@@ -1039,7 +1039,7 @@ namespace SGPAPP
                             PruebaID = (int)row.Cells["IDPrueba"].Value;
                             DelPrueba();
                             DelPreResult();
-
+                            SendMail();
                         }
                     }
                     catch (Exception ex)

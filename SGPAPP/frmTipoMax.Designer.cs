@@ -78,6 +78,7 @@ namespace SGPAPP
             this.cbbMetodo.Name = "cbbMetodo";
             this.cbbMetodo.Size = new System.Drawing.Size(208, 27);
             this.cbbMetodo.TabIndex = 31;
+            this.cbbMetodo.Visible = false;
             this.cbbMetodo.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.cbbPrueba_KeyPress);
             // 
             // label5
@@ -86,11 +87,12 @@ namespace SGPAPP
             this.label5.AutoSize = true;
             this.label5.Font = new System.Drawing.Font("MS Reference Sans Serif", 9.75F);
             this.label5.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label5.Location = new System.Drawing.Point(70, 72);
+            this.label5.Location = new System.Drawing.Point(71, 72);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(63, 16);
+            this.label5.Size = new System.Drawing.Size(62, 16);
             this.label5.TabIndex = 31;
             this.label5.Text = "Metodo:";
+            this.label5.Visible = false;
             // 
             // cbbPrueba
             // 
@@ -113,9 +115,9 @@ namespace SGPAPP
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("MS Reference Sans Serif", 9.75F);
             this.label1.ForeColor = System.Drawing.SystemColors.ControlText;
-            this.label1.Location = new System.Drawing.Point(74, 40);
+            this.label1.Location = new System.Drawing.Point(75, 40);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(59, 16);
+            this.label1.Size = new System.Drawing.Size(58, 16);
             this.label1.TabIndex = 19;
             this.label1.Text = "Prueba:";
             // 
@@ -127,7 +129,7 @@ namespace SGPAPP
             this.label3.ForeColor = System.Drawing.SystemColors.ControlText;
             this.label3.Location = new System.Drawing.Point(3, 8);
             this.label3.Name = "label3";
-            this.label3.Size = new System.Drawing.Size(113, 16);
+            this.label3.Size = new System.Drawing.Size(112, 16);
             this.label3.TabIndex = 18;
             this.label3.Text = "Tipo de Prueba:";
             // 

@@ -522,77 +522,41 @@ namespace SGPAPP
                             String pass = clsEncrypt.GetSHA256(contraseniaAleatoria);
                             GeneraCed();
                             CargaCred();
-                            if (Cred == false)
-                            {
-                                try
-                                {
-                                    string sql = "update tbcredenciales set cpwd = '" + pass + "' where cPacid = " + PacienteID + "";
-                                    SqlCommand cmd = new SqlCommand(sql, con);
-                                    cmd.CommandType = CommandType.Text;
-                                    con.Open();
-                                    int i = cmd.ExecuteNonQuery();
-                                    if (i > 0)
-                                        MessageBox.Show("Nuevos credenciales: '" + contraseniaAleatoria + "' del Paciente:" + Paciente + " Generados exitosamente!.", "Credenciales Generados", MessageBoxButtons.OK, MessageBoxIcon.Information);
 
-                                }
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    con.Close();
-                                }
-                                finally
-                                {
-                                    con.Close();
-                                }
-                            }
-                            else
-                            {
+                            con.Open();
+                            cmd = new SqlCommand("", con);
+                            cmd.CommandType = CommandType.StoredProcedure;
+                            cmd.CommandText = "spGetCredenciales";
+                            cmd.Parameters.Add(new SqlParameter("@pid", SqlDbType.VarChar)).Value = PacienteID;
+                            cmd.Parameters.Add(new SqlParameter("@Ced", SqlDbType.VarChar)).Value = Documentid;
+                            cmd.Parameters.Add(new SqlParameter("@pass", SqlDbType.VarChar)).Value = pass;
 
-                                try
-                                {
-                                    string Sql = "insert into tbCredenciales(cPacid, cDocumentid, cPwd) values ('" + PacienteID + "', '" + Documentid + "', '" + pass + "')";
+                            cmd.ExecuteNonQuery();
 
-                                    cmd = new SqlCommand(Sql, con);
-                                    cmd.CommandType = CommandType.Text;
-                                    con.Open();
-
-                                    int i = cmd.ExecuteNonQuery();
-                                    if (i > 0)
-                                        MessageBox.Show("Nuevos credenciales: '" + contraseniaAleatoria + "' del Paciente:" + Paciente + " Generados exitosamente!.", "Credenciales Generados", MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                                }
-                                catch (Exception ex)
-                                {
-                                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                                    con.Close();
-                                }
-                                finally
-                                {
-                                    con.Close();
-                                }
-                            }
+                            con.Close();
                         }
 
 
-                        printDocument1 = new PrintDocument();
-                        PrinterSettings ps = new PrinterSettings();
-                        printDocument1.PrinterSettings = ps;
-                        printDocument1.PrintPage += Imprimir;
-                        ps.PrinterName = "LR2000";
-                        printDocument1.Print();
+                        //printDocument1 = new PrintDocument();
+                        //PrinterSettings ps = new PrinterSettings();
+                        //printDocument1.PrinterSettings = ps;
+                        //printDocument1.PrintPage += Imprimir;
+                        //ps.PrinterName = "LR2000";
+                        //printDocument1.Print();
 
-                        string GS = Convert.ToString((char)29);
-                        string ESC = Convert.ToString((char)27);
+                        //string GS = Convert.ToString((char)29);
+                        //string ESC = Convert.ToString((char)27);
 
-                        string COMMAND = "";
-                        COMMAND = ESC + "@";
-                        COMMAND += GS + "V" + (char)1;
-                        RawPrinterHelper.SendStringToPrinter(ps.PrinterName = "LR2000", COMMAND);
+                        //string COMMAND = "";
+                        //COMMAND = ESC + "@";
+                        //COMMAND += GS + "V" + (char)1;
+                        //RawPrinterHelper.SendStringToPrinter(ps.PrinterName = "LR2000", COMMAND);
 
                         Logs log = new Logs();
                         log.Accion = "Credenciales actualizados al usuario: " + Paciente + "";
                         log.Form = "Consulta de Pacientes";
                         log.SaveLog();
+                        MessageBox.Show("Nuevos credenciales: '" + contraseniaAleatoria + "' del Paciente:" + Paciente + " Generados exitosamente!.", "Credenciales Generados", MessageBoxButtons.OK, MessageBoxIcon.Information);
                     }
 
                 }

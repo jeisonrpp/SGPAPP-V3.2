@@ -31,12 +31,12 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select distinct(prTipo) as Tipos from tbPruebas where prlaboratorios = 0 order by prTipo", con);
-
-                da.Fill(ds, "Tipos");
-                cbbTipo.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetTiposPruebas", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                sqlData.SelectCommand.Parameters.AddWithValue("@Empresas", true);
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbTipo.DataSource = table;
                 cbbTipo.ValueMember = "Tipos";
                 cbbTipo.Text = "Seleccione el Tipo";
                 cbbPrueba.Text = "Seleccione la Prueba";
@@ -49,12 +49,12 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select (prNombre) as Pruebas from tbPruebas where prTipo = '" + cbbTipo.Text + "' order by prNombre", con);
-
-                da.Fill(ds, "Pruebas");
-                cbbPrueba.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetPruebasPorTipo", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                sqlData.SelectCommand.Parameters.Add("@tipo", SqlDbType.VarChar).Value = cbbTipo.Text;
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbPrueba.DataSource = table;
                 cbbPrueba.ValueMember = "Pruebas";
                 cbbPrueba.Text = "Seleccione la Prueba";
                 con.Close();
@@ -64,8 +64,8 @@ namespace SGPAPP
         private void cbbPrueba_DropDown(object sender, EventArgs e)
         {
             CargacbbPrueba();
-            cbbMetodo.Enabled = true;
-            cbbMetodo.Text = "Seleccione el Metodo";
+            //cbbMetodo.Enabled = true;
+            //cbbMetodo.Text = "Seleccione el Metodo";
 
         }
 
@@ -82,8 +82,8 @@ namespace SGPAPP
         private void cbbPrueba_DropDown_1(object sender, EventArgs e)
         {
             CargacbbPrueba();
-            cbbMetodo.Enabled = true;
-            cbbMetodo.Text = "Seleccione el Metodo";
+            //cbbMetodo.Enabled = true;
+            cbbMetodo.Text = "Consulta Web";
         }
 
         private void cbbTipo_DropDown(object sender, EventArgs e)
@@ -104,7 +104,7 @@ namespace SGPAPP
 
         private void btnSav_Click(object sender, EventArgs e)
         {
-            if (cbbTipo.Text == "Seleccione el Tipo" || cbbPrueba.Text == "Seleccione la Prueba" || cbbMetodo.Text == "Seleccione el Metodo")
+            if (cbbTipo.Text == "Seleccione el Tipo" || cbbPrueba.Text == "Seleccione la Prueba" )
             {
                     MessageBox.Show("Debe completar los campos", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -112,12 +112,15 @@ namespace SGPAPP
                 {
                     using (var con = new SqlConnection(conect))
                 {
-                    string sql = "SELECT RTRIM(prTiempo) as [Tiempo] from tbPruebas where prTipo = '" + cbbTipo.Text + "' and prNombre = '" + cbbPrueba.Text + "'";
-
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    SqlDataReader reader;
-                    cmd.CommandType = CommandType.Text;
                     con.Open();
+                    SqlCommand cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spValidaPruebasParaAsignar";
+                    SqlDataReader reader;
+                    cmd.Parameters.Add("@pid", SqlDbType.Int).Value = DBNull.Value;
+                    cmd.Parameters.Add("@prueba", SqlDbType.VarChar).Value = cbbPrueba.Text;
+                    cmd.Parameters.Add("@tipop", SqlDbType.VarChar).Value = cbbTipo.Text;
+                    cmd.Parameters.Add("@paso", SqlDbType.VarChar).Value = 3;
 
                     try
                     {

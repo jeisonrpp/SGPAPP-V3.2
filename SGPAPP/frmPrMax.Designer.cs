@@ -205,6 +205,7 @@ namespace SGPAPP
             this.txtConsulta.Text = "Digite nombre o cedula";
             this.txtConsulta.TextChanged += new System.EventHandler(this.txtConsulta_TextChanged);
             this.txtConsulta.Enter += new System.EventHandler(this.txtConsulta_Enter);
+            this.txtConsulta.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtConsulta_KeyPress);
             this.txtConsulta.Leave += new System.EventHandler(this.txtConsulta_Leave);
             // 
             // btnAdd

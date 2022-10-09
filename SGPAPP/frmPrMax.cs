@@ -50,20 +50,17 @@ namespace SGPAPP
                 
                     using (var con = new SqlConnection(conect))
                     {
-                 
-                        con.Open();
-                        cmd = new SqlCommand("SELECT pId as [ID], RTRIM(pNom) as [Paciente], RTRIM(pCed) as [Cedula], RTRIM(pFecha) as [Fecha Nacimiento] from tbpacientes", con);
-                        SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                        DataSet myDataSet = new DataSet();
-                        myDA.Fill(myDataSet, "Paciente");
-                    radGridView5.DataSource = myDataSet.Tables["Paciente"].DefaultView;
-                        //dataGridView1.Columns["ID"].DisplayIndex = 0;
-                        //dataGridView1.Columns["Paciente"].DisplayIndex = 1;
-                        //dataGridView1.Columns["Cedula"].DisplayIndex = 2;
-                        //dataGridView1.Columns["Fecha Nacimiento"].DisplayIndex = 3;
 
-
-                        con.Close();
+                    SqlDataAdapter da = new SqlDataAdapter("spgetPacientes", con);
+                    DataTable dt = new DataTable();
+                    da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                    da.SelectCommand.Parameters.AddWithValue("@Nombre", DBNull.Value);
+                    da.SelectCommand.Parameters.AddWithValue("@Fechadesde", "prmax");
+                    da.SelectCommand.Parameters.AddWithValue("@fechahasta", DBNull.Value);
+                    da.Fill(dt);
+                    this.radGridView5.DataSource = dt;
+                    this.radGridView5.MasterTemplate.AutoSizeColumnsMode = Telerik.WinControls.UI.GridViewAutoSizeColumnsMode.Fill;
+                    con.Close();
                     }
 
               
@@ -101,11 +98,15 @@ namespace SGPAPP
             {
                 try
                 {
-                    string sql = "Select reid, repacid from tbresultados where repacid = '" + ID + "' and reprueba = '" + Prueba + "' and refecha = '" + cambiada1 + "' ";
-                    SqlCommand cmd = new SqlCommand(sql, con);
-                    SqlDataReader reader;
-                    cmd.CommandType = CommandType.Text;
                     con.Open();
+                    SqlCommand cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spValidaPruebasParaAsignar";
+                    SqlDataReader reader;
+                    cmd.Parameters.Add("@pid", SqlDbType.Int).Value = ID;
+                    cmd.Parameters.Add("@prueba", SqlDbType.VarChar).Value = Prueba;
+                    cmd.Parameters.Add("@tipop", SqlDbType.VarChar).Value = DBNull.Value;
+                    cmd.Parameters.Add("@paso", SqlDbType.VarChar).Value = 2;
 
 
                     reader = cmd.ExecuteReader();
@@ -210,31 +211,7 @@ namespace SGPAPP
 
         private void textBox1_TextChanged(object sender, EventArgs e)
         {
-            
-           
-                try
-                {
-                    using (var con = new SqlConnection(conect))
-                    {
-                     
-                        con.Open();
-                        cmd = new SqlCommand("SELECT pId as [ID], RTRIM(pNom) as [Paciente], RTRIM(pCed) as [Cedula], RTRIM(pFecha) as [Fecha Nacimiento] from tbpacientes where pnom like '%"+ txtConsulta.Text+ "%'  or pCed like '%" + txtConsulta.Text + "%' ", con);
-                        SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                        DataSet myDataSet = new DataSet();
-                        myDA.Fill(myDataSet, "Paciente");
-                    radGridView5.DataSource = myDataSet.Tables["Paciente"].DefaultView;
-        
-
-
-                        con.Close();
-                    
-                    con.Close();
-                }
-                }
-                catch (Exception ex)
-            {
-                MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-            }
+                                  
         
     }
 
@@ -251,31 +228,7 @@ namespace SGPAPP
 
         private void txtConsulta_TextChanged(object sender, EventArgs e)
         {
-
-           try
-                {
-                    using (var con = new SqlConnection(conect))
-                    {
-                     
-                        con.Open();
-                        cmd = new SqlCommand("SELECT pId as [ID], RTRIM(pNom) as [Paciente], RTRIM(pCed) as [Cedula], RTRIM(pFecha) as [Fecha Nacimiento] from tbpacientes where pnom like '%" + txtConsulta.Text + "%'  or pCed like '%" + txtConsulta.Text + "%' ", con);
-                        SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                        DataSet myDataSet = new DataSet();
-                        myDA.Fill(myDataSet, "Paciente");
-                    radGridView5.DataSource = myDataSet.Tables["Paciente"].DefaultView;
-                        
-
-                        con.Close();
-
-
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                }
-           
-
+          
         }
 
         private void txtConsulta_Leave(object sender, EventArgs e)
@@ -355,7 +308,7 @@ namespace SGPAPP
                 {
                     DateTime Fecha = DateTime.Now;
 
-                    SqlCommand AddPruebas = new SqlCommand("Insert into tbPruebasPendientes values (@Pacid, @Paciente, @Cedula, @Tipo, @Prueba, @Fecha, @Tiempo, @Metodo, @ppHora, @ppempresaid)", con);
+                   
                     con.Open();
                     try
                     {
@@ -368,18 +321,20 @@ namespace SGPAPP
                             getResultados();
                             if (results == false)
                             {
-                                AddPruebas.Parameters.Clear();
-                                AddPruebas.Parameters.AddWithValue("@Pacid", Convert.ToString(radGridView1.Rows[rowInfo.Index].Cells[0].Value));
-                                AddPruebas.Parameters.AddWithValue("@Paciente", Convert.ToString(radGridView1.Rows[rowInfo.Index].Cells[1].Value));
-                                AddPruebas.Parameters.AddWithValue("@Cedula", Convert.ToString(radGridView1.Rows[rowInfo.Index].Cells[2].Value));
-                                AddPruebas.Parameters.AddWithValue("@Tipo", Tipop);
-                                AddPruebas.Parameters.AddWithValue("@Prueba", Prueba);
-                                AddPruebas.Parameters.AddWithValue("@Fecha", cambiada1);
-                                AddPruebas.Parameters.AddWithValue("@Tiempo", Time);
-                                AddPruebas.Parameters.AddWithValue("@Metodo", Metodo);
-                                AddPruebas.Parameters.AddWithValue("@ppHora", Fecha.ToString("hh:mm tt", CultureInfo.InvariantCulture));
-                                AddPruebas.Parameters.AddWithValue("@ppempresaid", DBNull.Value);
-                                AddPruebas.ExecuteNonQuery();
+                                SqlCommand cmd = new SqlCommand("", con);
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandText = "spInsertPruebasPendientes";
+                                cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = ID;
+                                cmd.Parameters.Add(new SqlParameter("@pnombre", SqlDbType.VarChar)).Value = Pac;
+                                cmd.Parameters.Add(new SqlParameter("@pcedula", SqlDbType.VarChar)).Value = Convert.ToString(radGridView1.Rows[rowInfo.Index].Cells[2].Value);
+                                cmd.Parameters.Add(new SqlParameter("@tipoprueba", SqlDbType.VarChar)).Value = Tipop;
+                                cmd.Parameters.Add(new SqlParameter("@prueba", SqlDbType.NChar)).Value = Prueba;
+                                cmd.Parameters.Add(new SqlParameter("@fecha", SqlDbType.Date)).Value = cambiada1;
+                                cmd.Parameters.Add(new SqlParameter("@hora", SqlDbType.Time)).Value = DBNull.Value;
+                                cmd.Parameters.Add(new SqlParameter("@empresaid", SqlDbType.Int)).Value = DBNull.Value;
+                                cmd.Parameters.Add(new SqlParameter("@especial", SqlDbType.Bit)).Value = false;
+                                cmd.Parameters.Add(new SqlParameter("@prid", SqlDbType.Int)).Value = DBNull.Value;
+                                cmd.ExecuteNonQuery();
                                 SaveLog();
                             }
 
@@ -407,5 +362,40 @@ namespace SGPAPP
                 }
             }
         }
+
+        private void txtConsulta_KeyPress(object sender, KeyPressEventArgs e)
+        {
+
+            if (e.KeyChar == Convert.ToChar(Keys.Return))
+            {
+                if (txtConsulta.Text != "Digite nombre o cedula")
+                {
+                    try
+                    {
+                        using (var con = new SqlConnection(conect))
+                        {
+
+                            con.Open();
+                            SqlDataAdapter da = new SqlDataAdapter("spgetPacientes", con);
+                            DataTable dt = new DataTable();
+                            da.SelectCommand.CommandType = CommandType.StoredProcedure;
+                            da.SelectCommand.Parameters.AddWithValue("@Nombre", txtConsulta.Text);
+                            da.SelectCommand.Parameters.AddWithValue("@Fechadesde", "prmaxsearch");
+                            da.SelectCommand.Parameters.AddWithValue("@fechahasta", "prmaxsearch");
+                            da.Fill(dt);
+                            this.radGridView5.DataSource = dt;
+                            con.Close();
+
+
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+
+                }
+            }
+            }
     }
 }
