@@ -44,15 +44,19 @@ namespace SGPAPP
                 con.Open();
                 using (SqlCommand cm = con.CreateCommand())
                 {
-                    cm.CommandText = "Select redocpdf from tbpreresultados where reid = @id  ";
-                    cm.Parameters.Add("@id", SqlDbType.Int).Value = IDre;
 
+                    cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spCargaPDFPreResultados";
+                    SqlDataReader reader;
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = IDre;
+
+                    reader = cmd.ExecuteReader();
                     rd.GetNo();
-                    using (SqlDataReader dr = cm.ExecuteReader())
-                    {
-                        while (dr.Read())
+                 
+                        while (reader.Read())
                         {
-                            string realname = dr[0].ToString();
+                            string realname = reader[0].ToString();
                             int size = 1024 * 1024;
                             byte[] buffer = new byte[size];
                             int readBytes = 0;
@@ -61,14 +65,14 @@ namespace SGPAPP
                             fileName = @"C:\SGP\" + name + "-" + rd.RandomNo + ".pdf";
                             using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
                             {
-                                while ((readBytes = (int)dr.GetBytes(0, index, buffer, 0, size)) > 0)
+                                while ((readBytes = (int)reader.GetBytes(0, index, buffer, 0, size)) > 0)
                                 {
                                     fs.Write(buffer, 0, readBytes);
                                     index += readBytes;
                                 }
                             }
 
-                        }
+                        
                     }
                 }
             }
@@ -83,7 +87,7 @@ namespace SGPAPP
             CheckPDF();
             if (checkPDF == true)
             {
-                CargaPDF();
+                //CargaPDF();
                 Process prc = new Process();
                 prc.StartInfo.FileName = fileName;
                 prc.Start();
@@ -185,11 +189,11 @@ namespace SGPAPP
 
             using (var con = new SqlConnection(conect))
             {
-                string sql = "SELECT redocPDF as [PDF] from tbpreresultados where reid = " + IDre + " and redocpdf is not null";
-
-                SqlCommand cmd = new SqlCommand(sql, con);
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spCargaPDFPreResultados";
                 SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = IDre;
                 con.Open();
 
                 try
@@ -198,7 +202,21 @@ namespace SGPAPP
                     if (reader.Read())
                     {
                         checkPDF = true;
-
+                        string realname = reader[0].ToString();
+                        int size = 1024 * 1024;
+                        byte[] buffer = new byte[size];
+                        int readBytes = 0;
+                        int index = 0;
+                        docname = name + "-" + rd.RandomNo + ".pdf";
+                        fileName = @"C:\SGP\" + name + "-" + rd.RandomNo + ".pdf";
+                        using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
+                        {
+                            while ((readBytes = (int)reader.GetBytes(0, index, buffer, 0, size)) > 0)
+                            {
+                                fs.Write(buffer, 0, readBytes);
+                                index += readBytes;
+                            }
+                        }
                     }
                     else
                     {

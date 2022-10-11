@@ -450,7 +450,7 @@ namespace SGPAPP
             e.Graphics.DrawString("Paciente: "+txtNom.Text, font1, Brushes.Black, new RectangleF(30, 190, 300, 80));
             e.Graphics.DrawString("Usuario: "+Cedula, font2, Brushes.Black, new RectangleF(40, 250, 200, 80));
             e.Graphics.DrawString("Contraseña: "+contraseniaAleatoria, font2, Brushes.Black, new RectangleF(40, 280, 200, 80));
-            e.Graphics.DrawString("www.cgelaboratorio.com", font1, Brushes.Black, new RectangleF(40, 350, 200, 80));           
+            e.Graphics.DrawString("www.cgegrupomedico.com", font1, Brushes.Black, new RectangleF(40, 350, 200, 80));           
 
         }
         public void GeneraCred()

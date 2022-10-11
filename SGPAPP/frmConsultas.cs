@@ -263,7 +263,7 @@ namespace SGPAPP
             e.Graphics.DrawString("Paciente: " +Paciente, font1, Brushes.Black, new RectangleF(30, 190, 300, 80));
             e.Graphics.DrawString("Usuario: " + Documentid, font2, Brushes.Black, new RectangleF(40, 250, 200, 80));
             e.Graphics.DrawString("Contraseña: " + contraseniaAleatoria, font2, Brushes.Black, new RectangleF(40, 280, 200, 80));
-            e.Graphics.DrawString("www.cgelaboratorio.com", font1, Brushes.Black, new RectangleF(40, 350, 200, 80));
+            e.Graphics.DrawString("www.cgegrupomedico.com", font1, Brushes.Black, new RectangleF(40, 350, 200, 80));
 
         }
         public void GeneraCed()
@@ -537,20 +537,20 @@ namespace SGPAPP
                         }
 
 
-                        //printDocument1 = new PrintDocument();
-                        //PrinterSettings ps = new PrinterSettings();
-                        //printDocument1.PrinterSettings = ps;
-                        //printDocument1.PrintPage += Imprimir;
-                        //ps.PrinterName = "LR2000";
-                        //printDocument1.Print();
+                        printDocument1 = new PrintDocument();
+                        PrinterSettings ps = new PrinterSettings();
+                        printDocument1.PrinterSettings = ps;
+                        printDocument1.PrintPage += Imprimir;
+                        ps.PrinterName = "LR2000";
+                        printDocument1.Print();
 
-                        //string GS = Convert.ToString((char)29);
-                        //string ESC = Convert.ToString((char)27);
+                        string GS = Convert.ToString((char)29);
+                        string ESC = Convert.ToString((char)27);
 
-                        //string COMMAND = "";
-                        //COMMAND = ESC + "@";
-                        //COMMAND += GS + "V" + (char)1;
-                        //RawPrinterHelper.SendStringToPrinter(ps.PrinterName = "LR2000", COMMAND);
+                        string COMMAND = "";
+                        COMMAND = ESC + "@";
+                        COMMAND += GS + "V" + (char)1;
+                        RawPrinterHelper.SendStringToPrinter(ps.PrinterName = "LR2000", COMMAND);
 
                         Logs log = new Logs();
                         log.Accion = "Credenciales actualizados al usuario: " + Paciente + "";

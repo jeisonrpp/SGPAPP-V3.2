@@ -126,34 +126,7 @@ namespace SGPAPP
         {
            
         }
-        public void GetPruebasPendientes()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                try
-                {
-                    int Rows;
-                    Rows = dataGridView2.RowCount - 1;
-                    con.Open();
-                    cmd = new SqlCommand("select  ppID as [ID de Prueba], ppMetodo as [Metodo] from tbPruebasPendientes where ppPacid = '" + PacienteID + "'", con);
-                    SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                    DataSet myDataSet = new DataSet();
-                    dataGridView2.RowHeadersWidthSizeMode = DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-
-                    myDA.Fill(myDataSet, "Prueba");
-                    dataGridView2.DataSource = myDataSet.Tables["Prueba"].DefaultView;
-                    dataGridView2.Columns["ID de Prueba"].DisplayIndex = 0;
-                    dataGridView2.Columns["Metodo"].DisplayIndex = 1;
-                    con.Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-            }
-
-        }
+      
         //public void MergePDF()
         //{
         //    int RowCount = dataGridView3.Rows.Count;
@@ -374,45 +347,23 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
+                con.Open();
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spValidaPruebasParaReportar";
+                SqlDataReader reader;
+                cmd.Parameters.Add("@prueba", SqlDbType.VarChar).Value = Prueba;
+                cmd.Parameters.Add("@pid", SqlDbType.VarChar).Value = PacienteID;
                 try
-                { 
-                con.Open();
-                string ct2 = "select * from tbpruebas where prNombre = '" + Prueba + "' and prLaboratorios = 1";
-                cmd = new SqlCommand(ct2);
-                cmd.Connection = con;
-                rdr = cmd.ExecuteReader();
-                if (rdr.Read())
                 {
-                    validapr = true;
+                    reader = cmd.ExecuteReader();
 
-                }
-                con.Close();
-
-                con.Open();
-                    string ct3 = "select count(*) from tbpruebaspendientes inner join tbpruebas on prNombre = ppPrueba  where ppPacid = " + PacienteID + " and prLaboratorios = 1";
-                    cmd = new SqlCommand(ct3);
-                cmd.Connection = con;
-                rdr = cmd.ExecuteReader();
-                if (rdr.Read())
-                {
-                    counter = int.Parse(rdr[0].ToString());
-
-                }
-                con.Close();
-
-
-                    con.Open();
-                    string ct4 = "select * from tbpruebas where prNombre = '" + Prueba + "' and prespecial = 1";
-                    cmd = new SqlCommand(ct4);
-                    cmd.Connection = con;
-                    rdr = cmd.ExecuteReader();
-                    if (rdr.Read())
+                    if (reader.Read())
                     {
-                        especial = true;
-
+                        validapr = (bool)reader[2];
+                        especial = (bool)reader[1];
+                        counter = (int)reader[3];
                     }
-                    con.Close();
-
                 }
                 catch (Exception ex)
                 {
@@ -475,34 +426,7 @@ namespace SGPAPP
                 }
             }
         }
-        public void ValidaEmpresa()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                try
-                {
-                    con.Open();
-                    string ct2 = "select pempresa from tbpacientes where pid = '" + PacienteID + "'";
-                    cmd = new SqlCommand(ct2);
-                    cmd.Connection = con;
-                    rdr = cmd.ExecuteReader();
-                    if (rdr.Read())
-                    {
-                        String Empresa = rdr[0].ToString();
-                        if (Empresa.Length > 0)
-                        {
-                            validaEmpresa = true;
-                        }
-                    }
-                    con.Close();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    con.Close();
-                }
-            }
-        }
+      
         void radGridView1_CommandCellClick(object sender, GridViewCellEventArgs e)
         {
             if (UserCache.RoleList.Any(item => item.RoleName == "Asignar Resultados") || UserCache.Nivel == "Admin")
@@ -604,14 +528,14 @@ namespace SGPAPP
                         {
                             try
                             {
-                                String Sql = "delete from tbpruebaspendientes where ppid='" + PruebaID + "'";
-
-                                SqlCommand cmd = new SqlCommand(Sql, con);
-                                cmd.CommandType = CommandType.Text;
+                               
                                 con.Open();
+                                SqlCommand cmd = new SqlCommand("", con);
+                                cmd.CommandType = CommandType.StoredProcedure;
+                                cmd.CommandText = "spEliminarPruebasPendientes";
+                                cmd.Parameters.Add(new SqlParameter("@pruebaid", SqlDbType.Int)).Value = PruebaID;
+                                cmd.ExecuteNonQuery();
 
-
-                                int i = cmd.ExecuteNonQuery();
                                 SaveLog();
                                 Paciente = "";
                                 PruebaID = 0;
