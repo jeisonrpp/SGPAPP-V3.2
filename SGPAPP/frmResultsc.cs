@@ -140,14 +140,14 @@ namespace SGPAPP
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select (prNombre) as Pruebas from tbPruebas order by prNombre", con);
-
-                da.Fill(ds, "Pruebas");
-                cbbPrueba.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetPruebas", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbPrueba.DataSource = table;
                 cbbPrueba.ValueMember = "Pruebas";
-                cbbPrueba.Text = "Seleccione la prueba";
+                cbbPrueba.Text = "Seleccione la Prueba";
+                con.Close();
 
 
                 con.Close();
@@ -209,89 +209,24 @@ namespace SGPAPP
             log.SaveLog();
         }
         string realname;
-        public void getPlantilla()
-        {
-            using (SqlConnection con = new SqlConnection(conect))
-            {
-                           
-
-                    con.Open();
-                using (SqlCommand cm = con.CreateCommand())
-                {
-                    //string fileName = Application.StartupPath + @"\\resourses\" + PacID+"-plantillaresults";
-                    if (Prueba == "Sars Cov-2")
-                    {
-                        cm.CommandText = "Select pldoc, plrealname from tbplantilla where plid = @id  ";
-                        if (resultado == "Detectado" && Prueba == "Sars Cov-2" && English == false)
-                        {
-                            cm.Parameters.Add("@id", SqlDbType.Int).Value = 1;
-                        }
-                        if (Prueba == "Sars Cov-2" && resultado == "No Detectado" && English == false || Prueba == "Sars Cov-2" && resultado == "Indeterminado" && English == false)
-                        {
-                            cm.Parameters.Add("@id", SqlDbType.Int).Value = 2;
-                        }
-                        if (Prueba == "Sars Cov-2" && English == true)
-                        {
-                            cm.Parameters.Add("@id", SqlDbType.Int).Value = 6;
-                        }
-                    }
-                    else if (Prueba == "Antigeno" && English == true)
-                    {
-                        cm.CommandText = "Select pldoc, plrealname from tbplantilla where plPrueba = 'Antigen Test'  ";
-                    }
-                    else if (validapr == true)
-                    {
-                        cm.CommandText = "Select pldoc, plrealname from tbplantilla where plPrueba = 'ALT'";
-                    }
-                    else
-                    {
-                        cm.CommandText = "Select pldoc, plrealname from tbplantilla where plPrueba = '"+Prueba+"'  ";
-                    }
-
-                    rd.GetNo();
-
-
-                    using (SqlDataReader dr = cm.ExecuteReader())
-                    {
-                        while (dr.Read())
-                        {
-                            realname = dr[1].ToString();
-                            int size = 1024 * 1024;
-                            byte[] buffer = new byte[size];
-                            int readBytes = 0;
-                            int index = 0;
-                            string fileName = Application.StartupPath + @"\\resourses\" + rd.RandomNo + "-"+realname;
-                            using (FileStream fs = new FileStream(fileName, FileMode.Create, FileAccess.Write, FileShare.None))
-                            {
-                                while ((readBytes = (int)dr.GetBytes(0, index, buffer, 0, size)) > 0)
-                                {
-                                    fs.Write(buffer, 0, readBytes);
-                                    index += readBytes;
-                                }
-                            }
-
-                        }
-                    }
-                }
-            }                 
-                }
-
+       
         public void CargaPDF()
         {
             using (SqlConnection con = new SqlConnection(conect))
             {
 
 
-                con.Open();
-                using (SqlCommand cm = con.CreateCommand())
-                {
-                    cm.CommandText = "Select redocpdf from tbresultados where reid = @id  ";
-                    cm.Parameters.Add("@id", SqlDbType.Int).Value = IDre;
+                
+                    cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spCargaPDFResultados";                    
+                    cmd.Parameters.Add("@id", SqlDbType.Int).Value = IDre;
+                    con.Open();
 
                     rd.GetNo();
 
 
-                    using (SqlDataReader dr = cm.ExecuteReader())
+                    using (SqlDataReader dr = cmd.ExecuteReader())
                     {
                         while (dr.Read())
                         {
@@ -311,50 +246,26 @@ namespace SGPAPP
                                 }
                             }
 
-                        }
+                        
                     }
                 }
             }
 
                 }
     
-        public void UpdatePlantilla()
-        {
-            using (var con = new SqlConnection(conect))
-            using (SqlCommand cmd = con.CreateCommand())
-            {
-                try
-                {
-                    cmd.CommandText = @"update tbresultados set reDocPDF = @DOC where reID = " + IDre + "";
-                    cmd.Parameters.AddWithValue("@DOC", SqlDbType.VarBinary).Value = PDFDOC;
-                }
-
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:" + ex.ToString());
-                }
-                finally
-                {
-                    con.Close();
-                }
-
-                con.Open();
-                cmd.ExecuteScalar();
-                con.Close();
-                dataGridView1.DataSource = null;
-                dataGridView3.DataSource = null;
-            }
-
-        }
+      
         public void CheckPDF()
         {
             using (var con = new SqlConnection(conect))
             {
                 string sql = "SELECT redocPDF as [PDF] from tbresultados where reid = "+IDre+" and redocpdf is not null";
 
-                SqlCommand cmd = new SqlCommand(sql, con);
+               
                 SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spCargaPDFResultados";
+                cmd.Parameters.Add("@id", SqlDbType.Int).Value = IDre;
                 con.Open();
 
                 try
@@ -380,88 +291,9 @@ namespace SGPAPP
                 }
             }
         }
-        public void getQR()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                string sql = "SELECT qrLink from tbQRinfo where qrID = 1";
+               
 
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-
-                try
-                {
-                    reader = cmd.ExecuteReader();
-                    if (reader.Read())
-                    {
-                        QrLink = reader[0].ToString();
-
-                    }
-                    else
-                    {
-                        MessageBox.Show("No se ha encontrado link registrado!");
-                    }
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error: " + ex.ToString());
-                }
-                finally
-                {
-                    con.Close();
-                }
-            }
-        }
-       
-
-        public void sendmailold(string mailto, string doc)
-        {
-            if (enviado == false)
-            {
-                try
-                {
-
-                    cm.GetMailSetup();
-
-                    string filename = @"C:\SGP\" + doc + "";
-                    var mailtxt = new MailMessage();
-
-                    mailtxt.To.Add(mailto);
-                    mailtxt.From = new MailAddress(cm.MailFrom, cm.MailName, System.Text.Encoding.UTF8);
-                    mailtxt.Subject = cm.MailSubject;
-                    mailtxt.IsBodyHtml = true;
-                    mailtxt.Body = cm.MailText;
-
-                    System.Net.Mail.Attachment attachment;
-                    attachment = new System.Net.Mail.Attachment(filename);
-                    mailtxt.Attachments.Add(attachment);
-
-                    System.Net.Mail.SmtpClient client = new System.Net.Mail.SmtpClient(cm.MailSMTP);
-
-                    client.Port = int.Parse(cm.MailPort);
-                    client.EnableSsl = cm.MailSSL;
-                    ServicePointManager.ServerCertificateValidationCallback = delegate (object s, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors) { return true; };
-                    client.UseDefaultCredentials = true;
-                    NetworkCredential cred = new System.Net.NetworkCredential(cm.MailUser, cm.MailPass);
-                    
-                    client.Credentials = cred;
-                    client.Send(mailtxt);
-                    enviado = true;
-
-
-                }
-
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Ha ocurrido un error al enviar resultados al correo: " + Mail + ", Contacte al Administrador." +ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    enviado = false;
-                }
-            }
-        }
-
-       
+            
 
         public void conviertefecha()
         {
@@ -519,11 +351,14 @@ namespace SGPAPP
         {
             using (var con = new SqlConnection(conect))
             {
-                string sql = "select RTRIM(pemail) as [Email], RTRIM(pfechareg) as [Fecha Registro], RTRIM(pemail2) as [Email2] from tbpacientes where pID = '" + PacID + "'";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
                 con.Open();
+                SqlCommand cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spGetPacientes";
+                cmd.Parameters.Add(new SqlParameter("@Nombre", SqlDbType.VarChar)).Value = PacID;
+                cmd.Parameters.Add(new SqlParameter("@Fechadesde", SqlDbType.VarChar)).Value = "edit";
+                cmd.Parameters.Add(new SqlParameter("@Fechahasta", SqlDbType.VarChar)).Value = (object)DBNull.Value;
+                SqlDataReader reader;
                 try
                 {
                     reader = cmd.ExecuteReader();
@@ -620,7 +455,7 @@ namespace SGPAPP
 
         private void button1_Click_2(object sender, EventArgs e)
         {
-            getPlantilla();
+          
         }
 
         private void button1_Click_3(object sender, EventArgs e)
@@ -710,192 +545,7 @@ namespace SGPAPP
                 MessageBox.Show(ex.Message, "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-        public void EditPlantillalab()
-        {
-            String Depto = "";
-            using (var con = new SqlConnection(conect))
-            {
-                string sql = "update tbresultados set redocPDF = null where reid = '" + IDre + "' ";
-                SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-                try
-                {
-                    int i = cmd.ExecuteNonQuery();
-
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:" + ex.ToString());
-                }
-                finally
-                {
-                    Logs log = new Logs();
-                    log.Accion = "Resultados regenerados: " + name + "";
-                    log.Form = "Consulta de Resultados";
-                    log.SaveLog();
-
-                    con.Close();
-
-
-
-                    getPlantilla();
-                    System.IO.Directory.CreateDirectory(@"C:\SGP");
-                    conviertefecha();
-                    docname = name + " - " + rd.RandomNo + " - " + Fecha + ".pdf";
-                    //Checkifexist();
-                    object ObjMiss = System.Reflection.Missing.Value;
-                    Word.Application ObjWord = new Word.Application();
-                    string ruta = Application.StartupPath + @"\\resourses\" + rd.RandomNo + "-" + realname;
-                    rutasave = @"C:\SGP\" + docname + "";
-                    object parametro = ruta;
-                    object save = rutasave;
-                    object paciente = "paciente";
-                    object edad = "edad";
-                    object fechan = "fechan";
-                    object ced = "ced";
-                    object DEPTO = "DEPTO";
-                    object res = "resultado";
-                    object ct = "no";
-                    object fechae = "fechae";
-                    object dire = "dir";
-                    object fechamu = "fecham";
-                    object DefaultTableBehavior = Word.WdDefaultTableBehavior.wdWord9TableBehavior;
-                    object WdAutoFitBehavior = Word.WdAutoFitBehavior.wdAutoFitWindow;
-                    Word.Document ObjDoc = ObjWord.Documents.Open(parametro, ObjMiss, ReadOnly: true);
-                    Word.Range nom = ObjDoc.Bookmarks.get_Item(ref paciente).Range;
-                    nom.Text = name;
-                    Word.Range age = ObjDoc.Bookmarks.get_Item(ref edad).Range;
-                    age.Text = edad1;
-                    Word.Range fech = ObjDoc.Bookmarks.get_Item(ref fechan).Range;
-                    fech.Text = fechana;
-                    Word.Range cedu = ObjDoc.Bookmarks.get_Item(ref ced).Range;
-                    cedu.Text = cedul;
-                    Word.Range deptos = ObjDoc.Bookmarks.get_Item(ref DEPTO).Range;
-                    deptos.Text = testvalue;
-                    Word.Range fechaem = ObjDoc.Bookmarks.get_Item(ref fechae).Range;
-                    fechaem.Text = Fecha + " / " + DateTime.Parse(HoraEmision).ToString("hh:mm tt", CultureInfo.InvariantCulture);
-                    Word.Range direction = ObjDoc.Bookmarks.get_Item(ref dire).Range;
-                    direction.Text = dir;
-                    Word.Range fechamue = ObjDoc.Bookmarks.get_Item(ref fechamu).Range;
-                    fechamue.Text = DateTime.Parse(FechaMuestra).ToString("dd-MM-yyyy", CultureInfo.InvariantCulture);
-                    Word.Table table = ObjDoc.Tables[2];
-                    table.Borders.InsideLineStyle = Word.WdLineStyle.wdLineStyleSingle;
-                    int i = 3;
-                    String valmin;
-                    String valmax;
-                    String und;
-                    String valores;
-                    int tablerows = 0; 
-
-
-                    foreach (DataGridViewRow row in dataGridView1.Rows) if ((string)row.Cells["Departamento"].Value == testvalue)
-                    {
-                            decimal value;
-                            int rowcount = dataGridView1.Rows.Count;
-                        Prueba = (string)row.Cells["pruebas"].Value;
-                        resultado = (string)row.Cells["resultados"].Value;
-                        und = (string)row.Cells["unidad"].Value;
-                        valores = (string)row.Cells["valores"].Value;
-                        valmin = (string)row.Cells["valormin"].Value;
-                        valmax = (string)row.Cells["valormax"].Value;
-                            if (Decimal.TryParse(valmin, out value) && Decimal.TryParse(valmax, out value))
-                            {
-                                if (Decimal.TryParse(resultado, out value) && Double.Parse(resultado) < Double.Parse(valmin))
-                                {
-                                    resultado = " ↓ " + resultado;
-                                }
-                                else if  (Decimal.TryParse(resultado, out value) && Double.Parse(resultado) > Double.Parse(valmax))
-                                {
-                                    resultado = " ↑ " + resultado;
-                                }
-                            }
-                        table.Cell(i, 1).Range.Text = Prueba;
-                        table.Cell(i, 2).Range.Text = resultado;
-                        table.Cell(i, 3).Range.Text = und;
-                        table.Cell(i, 4).Range.Text = valores;
-                        if (tablerows < rowcount-1)
-                        {
-                                i++;
-                            tablerows++;
-                            table.Rows.Add(ref ObjMiss);
-                        }
-                    }
-                    object rango1 = nom;
-                    object rango2 = age;
-                    object rango3 = fech;
-                    object rango4 = cedu;
-                    object rango5 = fechaem;
-                    object rango6 = direction;
-                    object rango7 = fechamue;
-                    object rango8 = deptos;
-                    ObjDoc.Bookmarks.Add("paciente", ref rango1);
-                    ObjDoc.Bookmarks.Add("edad", ref rango2);
-                    ObjDoc.Bookmarks.Add("fechan", ref rango3);
-                    ObjDoc.Bookmarks.Add("ced", ref rango4);
-                    ObjDoc.Bookmarks.Add("fechae", ref rango5);
-                    ObjDoc.Bookmarks.Add("dir", ref rango6);
-                    ObjDoc.Bookmarks.Add("fecham", ref rango7);
-                    ObjDoc.Bookmarks.Add("DEPTO", ref rango8);
-                    ObjWord.Visible = false;
-                    if (File.Exists(rutasave))
-                    {
-                        File.Delete(rutasave);
-                    }
-                    ObjDoc.ExportAsFixedFormat(rutasave, Word.WdExportFormat.wdExportFormatPDF);
-                    object DoNotSaveChanges = Word.WdSaveOptions.wdDoNotSaveChanges;
-                    ObjDoc.Close(ref DoNotSaveChanges);
-                    ObjWord.Quit();
-                    PDFDOC = System.IO.File.ReadAllBytes(rutasave);
-
-                    //String doc = name + " - " + rd.RandomNo + " - " + Fecha + ".pdf";
-
-                    //fileArray[es] = @"C:\SGP\" + doc;
-                    //es++;
-
-                    //if (Merge == true)
-                    //{
-                    //    string outputPdfPath;
-                    //    PdfReader reader = null;
-                    //    Document sourceDocument = null;
-                    //    PdfCopy pdfCopyProvider = null;
-                    //    PdfImportedPage importedPage;
-                    //    rd.GetNo();
-                    //    outputPdfPath = @"C:\SGP\" + name + " - " + rd.RandomNo + " - " + Fecha + ".pdf";
-                    //    sourceDocument = new Document();
-                    //    pdfCopyProvider = new PdfCopy(sourceDocument, new System.IO.FileStream(outputPdfPath, System.IO.FileMode.Create));
-
-                    //    //output file Open  
-                    //    sourceDocument.Open();
-
-
-                    //    //files list wise Loop  
-                    //    for (int f = 0; f < fileArray.Length; f++)
-                    //    {
-                    //        int pages = TotalPageCount(fileArray[f]);
-
-                    //        reader = new PdfReader(fileArray[f]);
-                    //        //Add pages in new file  
-                    //        for (int e = 1; e <= pages; e++)
-                    //        {
-                    //            importedPage = pdfCopyProvider.GetImportedPage(reader, e);
-                    //            pdfCopyProvider.AddPage(importedPage);
-                    //        }
-
-                    //        reader.Close();
-                    //    }
-
-                    //    sourceDocument.Close();
-                    //    PDFDOC = System.IO.File.ReadAllBytes(outputPdfPath);
-                       
-                    //}
-
-                    testvalue = "";
-                    btnact.Enabled = false;
-
-                }
-            }
-        }
+       
         String testvalue;
 
         private void btnPlantilla_Click(object sender, EventArgs e)

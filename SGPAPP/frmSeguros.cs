@@ -108,5 +108,10 @@ namespace SGPAPP
                 MessageBox.Show("Error:" + ex.ToString());
             }
         }
+
+        private void radScrollablePanel1_Click(object sender, EventArgs e)
+        {
+
+        }
     }
 }

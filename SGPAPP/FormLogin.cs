@@ -271,6 +271,7 @@ namespace SGPAPP
         }
 
         private void txtPass_KeyPress(object sender, KeyPressEventArgs e)
+        
         {
 
             if (InternetGetConnectedState(out Desc, 0).ToString() == "True")

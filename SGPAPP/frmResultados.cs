@@ -148,37 +148,12 @@ namespace SGPAPP
                 else
                 {
                     {
-                        //if (Especial == "1")
-                        //{
-                            
-                        //        con.Open();
-                        //        cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
-                        //        SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                        //        DataSet myDataSet = new DataSet();
-                        //        myDA.Fill(myDataSet, "Pruebas");
-                        //        dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
-                        //        dataGridView2.Columns["Tipo"].DisplayIndex = 0;
-                        //        dataGridView2.Columns["Prueba"].DisplayIndex = 1;
-                        //        dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
-                        //        con.Close();
-                        //        for (int i = 0; i < dataGridView2.RowCount; i++)
-                        //        {
-                        //            int Rows;
-                        //            Rows = dataGridView1.RowCount - 1;
-                        //            dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
-                        //            dataGridView1.DataSource = dt;
-                        //            btnSave.Enabled = true;
-                        //        }
-                        //    }
-                                                   
-                        //else
-
-                        //{
+           
                             int Rows;
                             Rows = dataGridView1.RowCount - 1;
                             dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text, Especial);
                             dataGridView1.DataSource = dt;
-                     //   }
+                 
                     }
                 }
             }
@@ -200,51 +175,12 @@ namespace SGPAPP
             {
                 using (var con = new SqlConnection(conect))
                 {
-                    //if (Especial == true)
-                    //{
-
-                    //if (dataGridView2.Rows.Count < 1 && dataGridView1.Rows.Count < 1)
-                    //    {
-                    //    con.Open();
-                    //    cmd = new SqlCommand("select RTRIM(prTipo) as [Tipo], RTRIM(presnom) as [Prueba], RTRIM(prTiempo) as [Tiempo] from tbpruebas A inner join tbPruebasresults B on A.prid = B.prid where B.prid =" + ID + "", con);
-                    //    SqlDataAdapter myDA = new SqlDataAdapter(cmd);
-                    //    DataSet myDataSet = new DataSet();
-                    //    myDA.Fill(myDataSet, "Pruebas");
-                    //    dataGridView2.DataSource = myDataSet.Tables["Pruebas"].DefaultView;
-                    //    dataGridView2.Columns["Tipo"].DisplayIndex = 0;
-                    //    dataGridView2.Columns["Prueba"].DisplayIndex = 1;
-                    //    dataGridView2.Columns["Tiempo"].DisplayIndex = 2;
-                    //    con.Close();
-                    //    for (int i = 0; i < dataGridView2.RowCount; i++)
-                    //    {
-                    //        int Rows;
-                    //        Rows = dataGridView1.RowCount - 1;
-                    //        dt.Rows.Add(dataGridView2.Rows[i].Cells["Tipo"].Value.ToString(), dataGridView2.Rows[i].Cells["Prueba"].Value.ToString(), dataGridView2.Rows[i].Cells["Tiempo"].Value.ToString(), cambiada1, "Consulta Web");
-                    //        dataGridView1.DataSource = dt;
-                    //        btnSave.Enabled = true;
-                    //    }
-                    //}
-                    //else
-                    //{
-                    //    MessageBox.Show("Esta prueba solo puede agregarse de manera individual, elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    //}
-
-                    //}
-                    //else
-
-                    //{
-                    //    if (dataGridView2.Rows.Count < 1 )
-                    //    {
+                   
                             int Rows;
                             Rows = dataGridView1.RowCount - 1;
                             dt.Rows.Add(cbbTipo.Text, cbbPrueba.Text, Time, cambiada1, cbbMetodo.Text, Especial);
                             dataGridView1.DataSource = dt;
-                        //}
-                        //else
-                        //{
-                        //    MessageBox.Show("Para agregar otra prueba elimine o guarde las pruebas agregadas e intente nuevamente.", "Error", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                        //}
-                    //}
+                     
                 }
             }
         }
@@ -324,16 +260,7 @@ namespace SGPAPP
         {
             CargacbbPrueba();
             cbbMetodo.SelectedIndex = 0;
-           
-            // if (cbbTipo.Text == "Seleccione el Tipo" || cbbTipo.Text == "")
-           // {
-               
-           // }
-           //else
-           // {
-           //    CargacbbPrueba();
-           //     cbbPrueba.Enabled = true;
-           // }
+                    
         }
 
         private void cbbTipo_KeyPress(object sender, KeyPressEventArgs e)
@@ -348,36 +275,7 @@ namespace SGPAPP
 
         private void cbbPrueba_SelectedIndexChanged(object sender, EventArgs e)
         {
-           // cbbMetodo.Enabled = true;
-            //string sql = "SELECT RTRIM(prTiempo) as [Tiempo] from tbPruebas where prTipo = '" + cbbTipo.Text + "' and prPrueba = '" + cbbPrueba.Text + "'";
-            //con = new SqlConnection(cs.ConnectionString);
-            //SqlCommand cmd = new SqlCommand(sql, con);
-            //SqlDataReader reader;
-            //cmd.CommandType = CommandType.Text;
-            //con.Open();
-
-            //try
-            //{
-            //    reader = cmd.ExecuteReader();
-            //    if (reader.Read())
-            //    {
-            //        Time = reader[0].ToString();
-                    
-
-            //    }
-            //    else
-            //    {
-            //        MessageBox.Show("No se ha encontrado registro!");
-            //    }
-            //}
-            //catch (Exception ex)
-            //{
-            //    MessageBox.Show("Error: " + ex.ToString());
-            //}
-            //finally
-            //{
-            //    con.Close();
-            //}
+           
         }
       
         private void button1_Click(object sender, EventArgs e)
@@ -489,15 +387,7 @@ namespace SGPAPP
                     {
                         Insertadgv();
                         btnSave.Enabled = true;
-                    }
-                    //else
-                    //{
-                    //    getResultados();
-
-                    //CargacbbTipo();
-                    //cbbMetodo.Enabled = false;
-                    //cbbPrueba.Enabled = false;
-                    //}
+                    }    
                 }
                 catch (Exception ex)
                 {
@@ -551,11 +441,7 @@ namespace SGPAPP
                 if (dataGridView2.Rows.Count >= 1)
                 {
                     dataGridView1.DataSource = null;
-                    //int rowdgb1 = dataGridView1.Rows.Count;
-                    //for (int i = 0; i < rowdgb1; i++)
-                    //{
-                    //    dataGridView1.Rows.RemoveAt(i);
-                    //}
+   
                    
                     dataGridView2.DataSource = null;
                     dt.Rows.Clear();
@@ -582,55 +468,17 @@ namespace SGPAPP
 
                 using (var con = new SqlConnection(conect))
                 {
-                   // SqlCommand AddPruebas = new SqlCommand("Insert into tbPruebasPendientes values (@Pacid, @Paciente, @Cedula, @Tipo, @Prueba, @Fecha, @Tiempo, @Metodo, @Hora, @EmpresaID)", con);
+                   
                     con.Open();
                     Hora = DateTime.Now;
                     try
                     {
                         bool espc = false;
-                        //if (Especial == true)
-                        //{
-                        //    espc = true;
-
-
-                        //    if (dataGridView1.RowCount >= 1)
-                        //    {
-                        //        cmd = new SqlCommand(Sql, con);
-                        //        cmd.CommandType = CommandType.StoredProcedure;
-                        //        cmd.CommandText = "spInsertPruebasPendientes";
-                        //        cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = pacID;
-                        //        cmd.Parameters.Add(new SqlParameter("@pnombre", SqlDbType.VarChar)).Value = lblname.Text;
-                        //        cmd.Parameters.Add(new SqlParameter("@pcedula", SqlDbType.VarChar)).Value = Cedula;
-                        //        cmd.Parameters.Add(new SqlParameter("@tipoprueba", SqlDbType.VarChar)).Value = cbbTipo.Text;
-                        //        cmd.Parameters.Add(new SqlParameter("@prueba", SqlDbType.NChar)).Value = cbbPrueba.Text;
-                        //        cmd.Parameters.Add(new SqlParameter("@fecha", SqlDbType.Date)).Value = cambiada1;
-                        //        cmd.Parameters.Add(new SqlParameter("@hora", SqlDbType.Time)).Value = Hora.ToString("HH:mm");
-                        //        cmd.Parameters.Add(new SqlParameter("@empresaid", SqlDbType.Int)).Value = DBNull.Value;
-                        //        cmd.Parameters.Add(new SqlParameter("@especial", SqlDbType.Bit)).Value = espc;
-                        //        cmd.Parameters.Add(new SqlParameter("@prid", SqlDbType.Int)).Value = ID;
-                        //        cmd.ExecuteNonQuery();
-                        //    }
-                        //}
-                        //else
-                        //{
+                    
                             foreach (DataGridViewRow row in dataGridView1.Rows)
                             {
 
-                                //string sql = "SELECT RTRIM(prid) as [ID] from tbPruebas where prTipo = '" + Convert.ToString(row.Cells["Tipo"].Value) + "' and prNombre = '" + Convert.ToString(row.Cells["Prueba"].Value) + "'";
-                                //SqlCommand cm = new SqlCommand(sql, con);
-                                //SqlDataReader reader;
-                                //cm.CommandType = CommandType.Text;
-                             
-                                //    reader = cm.ExecuteReader();
-                                //    if (reader.Read())
-                                //    {                                       
-                                //        ID = int.Parse(reader[0].ToString());
-                                //    }
-                                //    else
-                                //    {
-                                //        MessageBox.Show("No se ha encontrado registro!");
-                                //    }
-                                //reader.Close();
+                               
                                 cmd = new SqlCommand(Sql, con);
                                 cmd.CommandType = CommandType.StoredProcedure;
                                 cmd.CommandText = "spInsertPruebasPendientes";
@@ -648,28 +496,9 @@ namespace SGPAPP
                            // }
                         }
 
-                        //foreach (DataGridViewRow row in dataGridView1.Rows)
-                        //{
-                        //    AddPruebas.Parameters.Clear();
-                        //    AddPruebas.Parameters.AddWithValue("@Pacid", Convert.ToString(pacID));
-                        //    AddPruebas.Parameters.AddWithValue("@Paciente", lblname.Text);
-                        //    AddPruebas.Parameters.AddWithValue("@Cedula", Cedula);
-                        //    AddPruebas.Parameters.AddWithValue("@Tipo", Convert.ToString(row.Cells["Tipo"].Value));
-                        //    AddPruebas.Parameters.AddWithValue("@Prueba", Convert.ToString(row.Cells["Prueba"].Value));
-                        //    AddPruebas.Parameters.AddWithValue("@Fecha", Convert.ToString(row.Cells["Fecha de Muestra"].Value));
-                        //    AddPruebas.Parameters.AddWithValue("@Tiempo", Convert.ToString(row.Cells["Tiempo"].Value));
-                        //    AddPruebas.Parameters.AddWithValue("@Metodo", "Consulta Web");
-                        //    AddPruebas.Parameters.AddWithValue("@Hora", Hora.ToString("hh:mm tt", CultureInfo.InvariantCulture));
-                        //    AddPruebas.Parameters.AddWithValue("@EmpresaID", DBNull.Value);
-                        //    AddPruebas.ExecuteNonQuery();
-
-                        //}
+                    
                         MessageBox.Show("Datos guardados exitosamente", "Guardado", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        ////UpdateCitas();
-                        //dt.Rows.Clear();
-                        ////CargacbbTipo();
-                        ////cbbPrueba.Enabled = false;
-                        ////cbbMetodo.Enabled = false;
+             
                         this.Close();
 
                     }

@@ -104,49 +104,31 @@ namespace SGPAPP
             DialogResult resulta = MessageBox.Show("Seguro quiere eliminar el Usuario: " + txtNom.Text + " ?", "Eliminar Usuario?", MessageBoxButtons.YesNo, MessageBoxIcon.Question);
             if (resulta == DialogResult.Yes)
             {
-                String Sql = "delete from tbUsuarios where uID = '" + UserID + "'";
-                SqlConnection con = new SqlConnection(conect);
-                SqlCommand cmd = new SqlCommand(Sql, con);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-
-                try
+                using (var con = new SqlConnection(conect))
                 {
-                    int i = cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:" + ex);
-                }
-                finally
-                {
-                    con.Close();
-                    DateTime fechas1 = DateTime.Now;
-                    String days = fechas1.Day.ToString();
-                    String mess = fechas1.Month.ToString();
-                    String years = fechas1.Year.ToString();
-                    string cambiadas1 = years + "-" + mess + "-" + days;
-                    String Hora = DateTime.Now.ToString("hh:mm");
-
-
-                    string Sql2 = "insert into tbLogs(logFecha, logHora, logForm, logAccion, logUser) values ('" + cambiadas1 + "', '" + Hora + "', 'Eliminiacion de Usuarios', 'Usuario: " + txtUser.Text + " Eliminado','" + UserCache.LoginName + "')";
-                    // con = new SqlConnection(cs.ConnectionString);
-                    cmd = new SqlCommand(Sql2, con);
-                    cmd.CommandType = CommandType.Text;
                     con.Open();
+                    cmd = new SqlCommand("", con);
+                    cmd.CommandType = CommandType.StoredProcedure;
+                    cmd.CommandText = "spDeleteUsers";
+                    cmd.Parameters.Add(new SqlParameter("@uid", SqlDbType.VarChar)).Value = UserID;
+
                     try
                     {
                         int i = cmd.ExecuteNonQuery();
-
-
                     }
                     catch (Exception ex)
                     {
-                        MessageBox.Show("Error:" + ex.ToString());
+                        MessageBox.Show("Error:" + ex);
                     }
                     finally
                     {
                         con.Close();
+
+                        Logs log = new Logs();
+                        log.Accion = "Usuario: " + txtUser.Text + " Eliminado";
+                        log.Form = "Eliminiacion de Usuarios";
+                        log.SaveLog();
+
                         Limpiar();
                         btnDel.Enabled = false;
                         btnRoles.Enabled = false;
@@ -154,6 +136,7 @@ namespace SGPAPP
                         btnSav.Visible = true;
                         btnUpd.Visible = false;
                         GetData();
+
                     }
                 }
             }
@@ -180,20 +163,27 @@ namespace SGPAPP
             {               
                   byte []  salt = clsEncrypt.GenerateSalt();
                 var hashedPassword = clsEncrypt.HashPasswordWithSalt(Encoding.UTF8.GetBytes(txtPass.Text), salt);
-            
-                string sql = "update tbUsuarios set uNombre = '" + txtNom.Text + "', uCedula= '" + txtCed.Text + "', uUser= '" + txtUser.Text + "', uPassword= @pass , uLevel= '" + cbbNivel.Text + "', ustatus= '" + cbbStatus.Text + "' , uSalt= @salt where uid = '" + UserID + "'";
 
-                SqlCommand cmd = new SqlCommand(sql, con);
-                cmd.CommandType = CommandType.Text;
+                con.Open();
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spUpdateUsers";
+                cmd.Parameters.Add(new SqlParameter("@nom", SqlDbType.VarChar)).Value = txtNom.Text;
+                cmd.Parameters.Add(new SqlParameter("@ced", SqlDbType.VarChar)).Value = txtCed.Text;
+                cmd.Parameters.Add(new SqlParameter("@user", SqlDbType.VarChar)).Value = txtUser.Text;
+                cmd.Parameters.Add(new SqlParameter("@level", SqlDbType.VarChar)).Value = cbbNivel.Text;
+                cmd.Parameters.Add(new SqlParameter("@status", SqlDbType.VarChar)).Value = cbbStatus.Text;
+                cmd.Parameters.Add(new SqlParameter("@uid", SqlDbType.VarChar)).Value = UserID;
+                
                 if (txtPass.Text != Password.ToString())
                 {
-                    cmd.Parameters.Add("@salt", SqlDbType.VarBinary).Value = salt;
-                    cmd.Parameters.Add("@pass", SqlDbType.VarBinary).Value = hashedPassword;
+                    cmd.Parameters.Add(new SqlParameter("@salt", SqlDbType.VarChar)).Value = salt;
+                    cmd.Parameters.Add(new SqlParameter("@pass", SqlDbType.VarChar)).Value = hashedPassword;
                 }
                 else
                 {
-                    cmd.Parameters.Add("@salt", SqlDbType.VarBinary).Value = saltold;
-                    cmd.Parameters.Add("@pass", SqlDbType.VarBinary).Value = Password;
+                    cmd.Parameters.Add(new SqlParameter("@salt", SqlDbType.VarChar)).Value = saltold;
+                    cmd.Parameters.Add(new SqlParameter("@pass", SqlDbType.VarChar)).Value = Password;
                 }
                 con.Open();
                 try
@@ -210,40 +200,18 @@ namespace SGPAPP
                 finally
                 {
                     con.Close();
-                    DateTime fechas1 = DateTime.Now;
-                    String days = fechas1.Day.ToString();
-                    String mess = fechas1.Month.ToString();
-                    String years = fechas1.Year.ToString();
-                    string cambiadas1 = years + "-" + mess + "-" + days;
-                    String Hora = DateTime.Now.ToString("hh:mm");
+                    Logs log = new Logs();
+                    log.Accion = "Usuario: " + txtUser.Text + " Modificado";
+                    log.Form = "Modificacion de Usuarios";
+                    log.SaveLog();
+                    Limpiar();
+                    btnDel.Enabled = false;
+                    btnRoles.Enabled = false;
+                    btnEmpresa.Enabled = false;
+                    btnSav.Visible = true;
+                    btnUpd.Visible = false;
+                    GetData();
 
-
-                    string Sql = "insert into tbLogs(logFecha, logHora, logForm, logAccion, logUser) values ('" + cambiadas1 + "', '" + Hora + "', 'Modificacion de Usuarios', 'Usuario: " + txtUser.Text + " Modificado','" + UserCache.LoginName + "')";
-                    // con = new SqlConnection(cs.ConnectionString);
-                    cmd = new SqlCommand(Sql, con);
-                    cmd.CommandType = CommandType.Text;
-                    con.Open();
-                    try
-                    {
-                        int i = cmd.ExecuteNonQuery();
-
-
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show("Error:" + ex.ToString());
-                    }
-                    finally
-                    {
-                        con.Close();
-                        Limpiar();
-                        btnDel.Enabled = false;
-                        btnRoles.Enabled = false;
-                        btnEmpresa.Enabled = false;
-                        btnSav.Visible = true;
-                        btnUpd.Visible = false;
-                        GetData();
-                    }
                 }
             }
         }

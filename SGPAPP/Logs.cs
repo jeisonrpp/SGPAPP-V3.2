@@ -35,19 +35,20 @@ namespace SGPAPP
             String PC = "Computer Name: " + Environment.MachineName;
             localIP = "IP: " + localIP;
 
-            DateTime fechas1 = DateTime.Now;
-            String days = fechas1.Day.ToString();
-            String mess = fechas1.Month.ToString();
-            String years = fechas1.Year.ToString();
-            string cambiadas1 = years + "-" + mess + "-" + days;
-            String Hora = DateTime.Now.ToString("hh:mm tt", CultureInfo.InvariantCulture);
+
             using (var con = new SqlConnection(conect))
             {
-                string Sql = "insert into tbLogs(logFecha, logHora, logForm, logAccion, logUser, logPC, logIP) values ('" + cambiadas1 + "', '" + Hora + "', '"+Form+"', '"+Accion+"','" + UserCache.LoginName + "','" + PC + "','" + localIP + "')";
-
-                cmd = new SqlCommand(Sql, con);
-                cmd.CommandType = CommandType.Text;
+                
                 con.Open();
+                cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spInsertaLogs";
+                cmd.Parameters.Add(new SqlParameter("@form", SqlDbType.VarChar)).Value = Form;
+                cmd.Parameters.Add(new SqlParameter("@accion", SqlDbType.VarChar)).Value = Accion;
+                cmd.Parameters.Add(new SqlParameter("@user", SqlDbType.VarChar)).Value = UserCache.LoginName;
+                cmd.Parameters.Add(new SqlParameter("@pc", SqlDbType.VarChar)).Value = PC;
+                cmd.Parameters.Add(new SqlParameter("@ip", SqlDbType.VarChar)).Value = localIP;
+
                 try
                 {
                     int i = cmd.ExecuteNonQuery();

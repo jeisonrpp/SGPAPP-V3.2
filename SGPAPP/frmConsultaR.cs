@@ -439,6 +439,7 @@ namespace SGPAPP
                 FechaMuestra = (string)e.Row.Cells["Fecha de Muestra"].Value;
                 Prueba = (string)e.Row.Cells["Prueba"].Value;
                 Tipo = (string)e.Row.Cells["Tipo de Prueba"].Value;
+    
                 DialogResult resulta;
                 using (var con = new SqlConnection(conect))
                 {
@@ -458,6 +459,7 @@ namespace SGPAPP
                         resu.Tipop = Tipo;
                         resu.Special = especial;
                         resu.Pruebalab = Prueba;
+
                         if (Prueba == "COLOTECT")
                         {
                             resu.Colotect = true;

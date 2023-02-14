@@ -58,19 +58,16 @@ namespace SGPAPP
         }
         public void CargaCbbPruebas()
         {
-            using (var con = new SqlConnection(conect))
+                  using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                DataSet ds = new DataSet();
-
-                SqlDataAdapter da = new SqlDataAdapter("Select (prNombre) as [Pruebas] from tbPruebas where prlaboratorios = 0 order by prNombre", con);
-
-                da.Fill(ds);
-                cbbPrueba.DataSource = ds.Tables[0].DefaultView;
+                SqlDataAdapter sqlData = new SqlDataAdapter("spGetPruebasReporteMasivo", con);
+                sqlData.SelectCommand.CommandType = CommandType.StoredProcedure;
+                DataTable table = new DataTable();
+                sqlData.Fill(table);
+                cbbPrueba.DataSource = table;
                 cbbPrueba.ValueMember = "Pruebas";
-                cbbPrueba.Text = "Seleccione el tipo de prueba";
-                this.cbbPrueba.MultiColumnComboBoxElement.DropDownWidth = 100;
-                this.cbbPrueba.EditorControl.TableElement.Font = new System.Drawing.Font("Segoe UI", 12F);
+                cbbPrueba.Text = "Seleccione la Prueba";
                 con.Close();
             }
         }
@@ -290,12 +287,14 @@ namespace SGPAPP
             //obtener los datos del paciente
             using (var con = new SqlConnection(conect))
             {
-                string sql = "SELECT  RTRIM(pFecha) as [Edad] , RTRIM(pemail) as [Email] , RTRIM(pdir) as [Direccion], RTRIM(pemail2) as [Email2] from tbpacientes where pID = '" + pacID + "'";
-
-                SqlCommand cmd = new SqlCommand(sql, con);
-                SqlDataReader reader;
-                cmd.CommandType = CommandType.Text;
                 con.Open();
+                SqlCommand cmd = new SqlCommand("", con);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.CommandText = "spGetPacientes";
+                cmd.Parameters.Add(new SqlParameter("@Nombre", SqlDbType.VarChar)).Value = pacID;
+                cmd.Parameters.Add(new SqlParameter("@Fechadesde", SqlDbType.VarChar)).Value = "edit";
+                cmd.Parameters.Add(new SqlParameter("@Fechahasta", SqlDbType.VarChar)).Value = (object)DBNull.Value;
+                SqlDataReader reader;
 
                 try
                 {
@@ -303,7 +302,7 @@ namespace SGPAPP
                     if (reader.Read())
                     {
                        
-                        Edad = reader[0].ToString();
+                        Edad = reader[3].ToString();
                         if (Edad == "1900-01-01")
                         {
                           Edad = "-";
@@ -315,10 +314,10 @@ namespace SGPAPP
                             Edad = Edad + " años";
   
                         }
-                        Fechan = reader[0].ToString();
-                        mail = reader[1].ToString();
-                        dir = reader[2].ToString();
-                        mail2 = reader[3].ToString();
+                        Fechan = reader[3].ToString();
+                        mail = reader[6].ToString();
+                        dir = reader[4].ToString();
+                        mail2 = reader[7].ToString();
 
                     }
                     else
@@ -373,6 +372,10 @@ namespace SGPAPP
                                     English = false;
                                     if (Prueba == "Antigeno" && radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() != "0" || Prueba == "Sars Cov-2" && radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() != "0" || Prueba == "Influenza" && radGridView1.Rows[rowInfo.Index].Cells[9].Value.ToString() != "0" || radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() != "0" || Prueba == "Anticuerpo-Covid" && radGridView1.Rows[rowInfo.Index].Cells[9].Value.ToString() != "0" || radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() != "0")
                                     {
+                                        cmd = new SqlCommand(Sql, con);
+                                        cmd.CommandType = CommandType.StoredProcedure;
+                                        cmd.CommandText = "spInsertResultadosPCR";
+
                                         switch (Prueba)
                                         {
                                             case "Antigeno":
@@ -380,8 +383,15 @@ namespace SGPAPP
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[12].Value != null) { English = true; }
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[10].Value.ToString() == "1")
                                                 { Resultado = "Positivo"; }
-                                                else if (radGridView1.Rows[rowInfo.Index].Cells[10].Value.ToString() == "2") { Resultado = "Negativo"; }
-                                                Sql = "insert into tbResultados(rePacid, rePaciente, reDir, reFechan, reEdad, reCed, reTipop, rePrueba, reResultado, reResultado1, reCT, reResultado2, reCT2, reFecha, refecham, reHora, reHoram, reDocPDF, rePruebaID) values (" + pacID + ", '" + Paciente + "', '" + dir + "', '" + Fechan + "', '" + Edad + "', '" + Cedula + "','" + radGridView1.Rows[rowInfo.Index].Cells[5].Value.ToString() + "', '" + radGridView1.Rows[rowInfo.Index].Cells[6].Value.ToString() + "', '" + Resultado + "', '" + Resultado + "', '" + CT + "', NULL, NULL,'" + cambiada1 + "' , '" + radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() + "',  '" + HoraRegistro.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "', '" + radGridView1.Rows[rowInfo.Index].Cells[8].Value.ToString() + "',NULL , '" + radGridView1.Rows[rowInfo.Index].Cells[1].Value.ToString() + "')";
+                                                else if (radGridView1.Rows[rowInfo.Index].Cells[10].Value.ToString() == "2") { Resultado = "Negativo"; }                                               
+                                                cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = pacID;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado", SqlDbType.VarChar)).Value = Resultado;
+                                                cmd.Parameters.Add(new SqlParameter("@ct", SqlDbType.VarChar)).Value = DBNull.Value;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado2", SqlDbType.VarChar)).Value = DBNull.Value;
+                                                cmd.Parameters.Add(new SqlParameter("@ct2", SqlDbType.VarChar)).Value = DBNull.Value;
+                                                cmd.Parameters.Add(new SqlParameter("@pruebaid", SqlDbType.Int)).Value = PrID;
+                                                cmd.Parameters.Add(new SqlParameter("@English", SqlDbType.Bit)).Value = English;
+                                                cmd.Parameters.Add(new SqlParameter("@user", SqlDbType.VarChar)).Value = UserCache.Usuario;
                                                 break;
                                             case "Sars Cov-2":
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[10].Value == null) { CT = "-"; }
@@ -390,7 +400,14 @@ namespace SGPAPP
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[10].Value.ToString() == "1")
                                                 { Resultado = "Detectado"; }
                                                 else if (radGridView1.Rows[rowInfo.Index].Cells[9].Value.ToString() == "2") { Resultado = "No Detectado"; }
-                                                Sql = "insert into tbResultados(rePacid, rePaciente, reDir, reFechan, reEdad, reCed, reTipop, rePrueba, reResultado, reResultado1, reCT, reResultado2, reCT2, reFecha, refecham, reHora, reHoram, reDocPDF, rePruebaID) values (" + pacID + ", '" + Paciente + "', '" + dir + "', '" + Fechan + "', '" + Edad + "', '" + Cedula + "','" + radGridView1.Rows[rowInfo.Index].Cells[5].Value.ToString() + "', '" + radGridView1.Rows[rowInfo.Index].Cells[6].Value.ToString() + "', '" + Resultado + "', '" + Resultado + "', '" + CT + "', NULL, NULL,'" + cambiada1 + "' , '" + radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() + "',  '" + HoraRegistro.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "', '" + radGridView1.Rows[rowInfo.Index].Cells[8].Value.ToString() + "',NULL , '" + radGridView1.Rows[rowInfo.Index].Cells[1].Value.ToString() + "')";
+                                                cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = pacID;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado", SqlDbType.VarChar)).Value = Resultado;
+                                                cmd.Parameters.Add(new SqlParameter("@ct", SqlDbType.VarChar)).Value = CT;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado2", SqlDbType.VarChar)).Value = DBNull.Value;
+                                                cmd.Parameters.Add(new SqlParameter("@ct2", SqlDbType.VarChar)).Value = DBNull.Value;
+                                                cmd.Parameters.Add(new SqlParameter("@pruebaid", SqlDbType.Int)).Value = PrID;
+                                                cmd.Parameters.Add(new SqlParameter("@English", SqlDbType.Bit)).Value = English;
+                                                cmd.Parameters.Add(new SqlParameter("@user", SqlDbType.VarChar)).Value = UserCache.Usuario;
                                                 break;
                                             case "Influenza":
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[11].Value == null) { CT = "-"; }
@@ -403,7 +420,14 @@ namespace SGPAPP
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[12].Value.ToString() == "1")
                                                 { Resultado2 = "Detectado"; }
                                                 else if (radGridView1.Rows[rowInfo.Index].Cells[12].Value.ToString() == "2") { Resultado2 = "No Detectado"; }
-                                                Sql = "insert into tbResultados(rePacid, rePaciente, reDir, reFechan, reEdad, reCed, reTipop, rePrueba, reResultado, reResultado1, reCT, reResultado2, reCT2, reFecha, refecham, reHora, reHoram, reDocPDF, rePruebaID) values (" + pacID + ", '" + Paciente + "', '" + dir + "', '" + Fechan + "', '" + Edad + "', '" + Cedula + "','" + radGridView1.Rows[rowInfo.Index].Cells[5].Value.ToString() + "', '" + radGridView1.Rows[rowInfo.Index].Cells[6].Value.ToString() + "', '" + Resultado + "', '" + Resultado + "', '" + CT + "',  '" + Resultado2 + "',  '" + CT2 + "','" + cambiada1 + "' , '" + radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() + "',  '" + HoraRegistro.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "', '" + radGridView1.Rows[rowInfo.Index].Cells[8].Value.ToString() + "',NULL , '" + radGridView1.Rows[rowInfo.Index].Cells[1].Value.ToString() + "')";
+                                                cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = pacID;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado", SqlDbType.VarChar)).Value = Resultado;
+                                                cmd.Parameters.Add(new SqlParameter("@ct", SqlDbType.VarChar)).Value = CT;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado2", SqlDbType.VarChar)).Value = Resultado2;
+                                                cmd.Parameters.Add(new SqlParameter("@ct2", SqlDbType.VarChar)).Value = CT2;
+                                                cmd.Parameters.Add(new SqlParameter("@pruebaid", SqlDbType.Int)).Value = PrID;
+                                                cmd.Parameters.Add(new SqlParameter("@English", SqlDbType.Bit)).Value = English;
+                                                cmd.Parameters.Add(new SqlParameter("@user", SqlDbType.VarChar)).Value = UserCache.Usuario;
                                                 break;
                                             case "Anticuerpo-Covid":
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[11].Value == null) { CT = "-"; }
@@ -416,7 +440,14 @@ namespace SGPAPP
                                                 if (radGridView1.Rows[rowInfo.Index].Cells[12].Value.ToString() == "1")
                                                 { Resultado2 = "Positivo"; }
                                                 else if (radGridView1.Rows[rowInfo.Index].Cells[12].Value.ToString() == "2") { Resultado2 = "Negativo"; }
-                                                Sql = "insert into tbResultados(rePacid, rePaciente, reDir, reFechan, reEdad, reCed, reTipop, rePrueba, reResultado, reResultado1, reCT, reResultado2, reCT2, reFecha, refecham, reHora, reHoram, reDocPDF, rePruebaID) values (" + pacID + ", '" + Paciente + "', '" + dir + "', '" + Fechan + "', '" + Edad + "', '" + Cedula + "','" + radGridView1.Rows[rowInfo.Index].Cells[5].Value.ToString() + "', '" + radGridView1.Rows[rowInfo.Index].Cells[6].Value.ToString() + "', '" + Resultado + "', '" + Resultado + "', '" + CT + "',  '" + Resultado2 + "',  '" + CT2 + "','" + cambiada1 + "' , '" + radGridView1.Rows[rowInfo.Index].Cells[7].Value.ToString() + "',  '" + HoraRegistro.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "', '" + radGridView1.Rows[rowInfo.Index].Cells[8].Value.ToString() + "',NULL , '" + radGridView1.Rows[rowInfo.Index].Cells[1].Value.ToString() + "')";
+                                                cmd.Parameters.Add(new SqlParameter("@pacid", SqlDbType.Int)).Value = pacID;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado", SqlDbType.VarChar)).Value = Resultado;
+                                                cmd.Parameters.Add(new SqlParameter("@ct", SqlDbType.VarChar)).Value = CT;
+                                                cmd.Parameters.Add(new SqlParameter("@resultado2", SqlDbType.VarChar)).Value = Resultado2;
+                                                cmd.Parameters.Add(new SqlParameter("@ct2", SqlDbType.VarChar)).Value = CT2;
+                                                cmd.Parameters.Add(new SqlParameter("@pruebaid", SqlDbType.Int)).Value = PrID;
+                                                cmd.Parameters.Add(new SqlParameter("@English", SqlDbType.Bit)).Value = English;
+                                                cmd.Parameters.Add(new SqlParameter("@user", SqlDbType.VarChar)).Value = UserCache.Usuario;
                                                 break;
                                         }
                                         cmd = new SqlCommand(Sql, con);
@@ -425,10 +456,7 @@ namespace SGPAPP
                                         try
                                         {
                                             int i = cmd.ExecuteNonQuery();
-
-                                            DelPrueba();
-                                            GeneratePDF();
-                                            SendMail();
+                                           
                                             Logs log = new Logs();
                                             log.Accion = "Resultados del paciente: " + Paciente + " Reportados";
                                             log.Form = "Asignacion de Resultados Masivos";
@@ -461,80 +489,7 @@ namespace SGPAPP
                 }
             }
         }
-        public void GeneratePDF()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                String Query = "insert into tbcontrolpdf (cpreid, cppacid, cpgenerate, cpfecha, cphora, cpuser, cpenglish) values ((select reid from tbResultados where rePruebaID = " + PrID + " and repacid = " + pacID + "), " + pacID + ", '0', '" + cambiada1 + "', '" + HoraRegistro.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "', '" + UserCache.Usuario + "', @English) ";
-                cmd = new SqlCommand(Query, con);
-                cmd.Parameters.AddWithValue("@English", English);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-                try
-                {
-                    int i = cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:" + ex.ToString());
-                }
-                finally
-                {
-                    con.Close();
-                }
-            }
-        }
-        public void SendMail()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                if (mail2.Length > 0)
-                {
-                    mail = mail + ", " + mail2;
-                }
-                String Query2 = "insert into tbControlMail (cmreid, cmpruebaempresaid, cmmail, cmfecha, cmhora, cmenviado, cmerror) values ((select reid from tbResultados where rePruebaID = " + PrID + " and repacid = " + pacID + "), '0', '" + mail + "', '" + cambiada1 + "', '" + HoraRegistro.ToString("hh:mm tt", CultureInfo.InvariantCulture) + "', 0, NULL) ";
-                cmd = new SqlCommand(Query2, con);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-                try
-                {
-                    int i = cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:" + ex.ToString());
-                }
-                finally
-                {
-                    con.Close();
-                }
-            }
-        }
-        public void DelPrueba()
-        {
-            using (var con = new SqlConnection(conect))
-            {
-                String Sqls = "delete from tbPruebasPendientes where ppID = '" + PrID + "'";
-
-                SqlCommand cmd = new SqlCommand(Sqls, con);
-                cmd.CommandType = CommandType.Text;
-                con.Open();
-
-                try
-                {
-                    int i = cmd.ExecuteNonQuery();
-                }
-                catch (Exception ex)
-                {
-                    MessageBox.Show("Error:" + ex);
-                }
-                finally
-                {
-                    con.Close();
-                }
-            }
-        }
-
+ 
         private void btnCerrar_Click(object sender, EventArgs e)
         {
             this.Close();
