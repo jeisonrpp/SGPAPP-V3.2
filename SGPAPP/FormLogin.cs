@@ -230,7 +230,7 @@ namespace SGPAPP
 
                         }
                         Logs log = new Logs();
-                        log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + " v3.5";
+                        log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + " v3.6";
                         log.Form = "Login";
                         log.SaveLog();
                         con.Close();
@@ -363,7 +363,7 @@ namespace SGPAPP
 
                             }
                             Logs log = new Logs();
-                            log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + " v3.5";
+                            log.Accion = "Inicio de Sesion Usuario: " + UserCache.Usuario + " v3.6";
                             log.Form = "Login";
                             log.SaveLog();
                             con.Close();
@@ -413,6 +413,11 @@ namespace SGPAPP
         }
 
         private void txtUser_TextChanged(object sender, EventArgs e)
+        {
+
+        }
+
+        private void label2_Click(object sender, EventArgs e)
         {
 
         }

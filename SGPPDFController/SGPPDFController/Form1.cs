@@ -78,6 +78,7 @@ namespace SGPPDFController
         SqlDataReader rdr = null;
         bool validapr = false;
         bool especial = false;
+        int plantillaid;
         bool Presult = false;
         private void Form1_Load(object sender, EventArgs e)
         {
@@ -267,14 +268,16 @@ namespace SGPPDFController
             using (var con = new SqlConnection(conect))
             {
                 con.Open();
-                string ct2 = "select prlaboratorios, prespecial from tbpruebas where prNombre = '" + reprueba + "' and prLaboratorios = 1";
+                //string ct2 = "select prlaboratorios, prespecial from tbpruebas where prNombre = '" + reprueba + "' and prLaboratorios = 1";
+                string ct2 = "select prlaboratorios, prespecial, case when (select plid from tbplantilla where plprueba = '" + reprueba + "') is null then 0 else (select plid from tbplantilla where plprueba = '" + reprueba + "') end from tbpruebas where prNombre = '" + reprueba + "' and prLaboratorios = 1";
                 cmd = new SqlCommand(ct2);
                 cmd.Connection = con;
                 rdr = cmd.ExecuteReader();
                 if (rdr.Read())
                 {
                     validapr = bool.Parse(rdr[0].ToString());
-                    especial = bool.Parse(rdr[1].ToString());   
+                    especial = bool.Parse(rdr[1].ToString());
+                    plantillaid = (int)rdr[2];
 
                 }
                 con.Close();
@@ -496,15 +499,25 @@ namespace SGPPDFController
                             cm.Parameters.Add("@id", SqlDbType.Int).Value = 6;
                         }
                     }
-                    else if (reprueba == "Antigeno" && English == true)
+                    else if (validapr == true && plantillaid > 0 && reprueba != "Cultivo de Orina*")
                     {
-                        cm.CommandText = "Select pldoc, plrealname from tbplantilla where plPrueba = 'Antigen Test'  ";
+
+                        cm.CommandText = "Select pldoc, plrealname from tbplantilla where plid = " + plantillaid + "";
+
                     }
-                    else if (validapr == true)
+                    else if (plantillaid == 0 && validapr == true && reprueba != "Cultivo de Orina*" && reprueba != "Colotect")
                     {
-                        
+
                         cm.CommandText = "Select pldoc, plrealname from tbplantilla where plPrueba = 'ALT'";
-                       
+
+                    }
+                    else if (reprueba == "Colotect")
+                    {
+                        foreach (GridViewRowInfo rowInfo in radGridView2.Rows)
+                        {
+                            if (radGridView2.Rows[2].Cells[2].Value.ToString() == "Positivo" || radGridView2.Rows[2].Cells[2].Value.ToString() == "POSITIVO") { cm.CommandText = "Select pldoc, plrealname from tbplantilla where plPrueba = 'Colotect pos'"; break; }
+                            else if (radGridView2.Rows[2].Cells[2].Value.ToString() == "Negativo" || radGridView2.Rows[2].Cells[2].Value.ToString() == "NEGATIVO") { cm.CommandText = "Select pldoc, plrealname from tbplantilla where plPrueba = 'Colotect neg'"; break; }
+                        }
                     }
                     else
                     {
